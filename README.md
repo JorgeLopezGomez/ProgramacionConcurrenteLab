@@ -1,2 +1,2 @@
 # ProgramacionConcurrenteLab
-Repositorio para el laboratorio de programación concurrente
+Repositorio para el laboratorio de programación concurrente y tiempo real (2023-24)
