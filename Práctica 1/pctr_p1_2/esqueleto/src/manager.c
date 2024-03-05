@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <definitions.h>
+
 #include <lista.h>
 
 void procesar_argumentos(int argc, char *argv[], char **filename, char **pattern, int *lines);

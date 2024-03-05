@@ -3,40 +3,46 @@
 #include <lista.h>
 
 // Crea una lista con un nodo.
-void crear(TLista *pLista, char valor[])
+void crear(TLista *pLista, char *valor)
 {
-  pLista->pPrimero = malloc(sizeof(TNodo));
-  pLista->pPrimero->valor = valor;
-  pLista->pPrimero->pSiguiente = NULL;
+  pLista->pPrimero = malloc(sizeof(TNodo)); // Reservamos memoria para el primer nodo
+
+  char *pValor = malloc(strlen(valor) * sizeof(char)); // Reservamos memoria para el valor del primer nodo
+  strcpy(pValor, valor);                               // Copiamos el valor pasado por parametro al primer nodo
+  pLista->pPrimero->valor = pValor;                    // Asignamos el valor al primer nodo
+
+  pLista->pPrimero->pSiguiente = NULL; // Asignamos NULL al siguiente del primer nodo
 }
 
 // Elimina todos los nodos de la lista, liberando la memoria que ocupan los nodos y la lista en si misma (pLista).
 void destruir(TLista *pLista)
 {
-  TNodo *pAux1;
-  struct Nodo *pAux2;
+  TNodo *pAux1;       // Creamos dos punteros auxiliares
+  struct Nodo *pAux2; // Creamos dos punteros auxiliares
 
-  for (pAux1 = pLista->pPrimero; pAux1 != NULL;)
+  for (pAux1 = pLista->pPrimero; pAux1 != NULL;) // Recorremos la lista
   {
-    pAux2 = pAux1->pSiguiente;
-    free(pAux1);
-    pAux1 = pAux2;
+    pAux2 = pAux1->pSiguiente; // Guardamos el siguiente nodo
+    free(pAux1);               // Liberamos el nodo actual
+    pAux1 = pAux2;             // Asignamos el siguiente nodo al nodo actual
   }
 
-  free(pLista);
+  free(pLista); // Liberamos la lista
 }
 
 // Inserta al principio de la lista.
-void insertar(TLista *pLista, char valor[])
+void insertar(TLista *pLista, char *valor)
 {
-  TNodo *nuevoNodo = malloc(sizeof(TNodo));
-  nuevoNodo->valor = valor;
-  nuevoNodo->pSiguiente = pLista->pPrimero;
-  pLista->pPrimero = nuevoNodo;
+  struct Nodo *pNodo = malloc(sizeof(TNodo)); // Reservamos memoria para el nuevo nodo
+
+  char *pNodoValor = malloc(strlen(valor) * sizeof(char)); // Reservamos memoria para el valor del nuevo nodo
+  strcpy(pNodoValor, valor);                               // Copiamos el valor pasado por parametro al nuevo nodo
+  pNodo->valor = pNodoValor;                               // Asignamos el valor al nuevo nodo
+  pNodo->pSiguiente = pLista->pPrimero;                    // Asignamos el primer nodo de la lista como siguiente del nuevo nodo
 }
 
 // Inserta al final de la lista.
-void insertarFinal(TLista *pLista, char valor[])
+void insertarFinal(TLista *pLista, char *valor)
 {
   TNodo *nuevoNodo = malloc(sizeof(TNodo));
   nuevoNodo->valor = valor;
@@ -59,7 +65,7 @@ void insertarFinal(TLista *pLista, char valor[])
 }
 
 // Suponemos n = 1, 2, ...
-void insertarN(TLista *pLista, int index, char valor[])
+void insertarN(TLista *pLista, int index, char *valor)
 {
   // Crear un nuevo nodo
   TNodo *nuevoNodo = (TNodo *)malloc(sizeof(TNodo));
@@ -110,14 +116,13 @@ void insertarN(TLista *pLista, int index, char valor[])
 // Elimina el primer elemento de la lista.
 void eliminar(TLista *pLista)
 {
-  TNodo *pAux = pLista->pPrimero;
-  pLista->pPrimero = pLista->pPrimero->pSiguiente;
-  free(pAux);
+  TNodo *pAux = pLista->pPrimero;                  // Creamos un puntero auxiliar
+  pLista->pPrimero = pLista->pPrimero->pSiguiente; // Asignamos el siguiente nodo al primer nodo
+  free(pAux);                                      // Liberamos el primer nodo
 
-  // Si la lista esta vacia, la creamos con un nodo vacio
-  if (pLista->pPrimero == NULL)
+  if (pLista->pPrimero == NULL) // Si la lista esta vacia, creamos un nodo con el valor NULL y lo asignamos como primer nodo
   {
-    crear(pLista, 0);
+    crear(pLista, 0); // Creamos un nodo con el valor NULL y lo asignamos como primer nodo
   }
 }
 
@@ -191,30 +196,27 @@ int getElementoN(TLista *pLista, int index)
 // Imprime la lista.
 void imprimir(TLista *pLista)
 {
-  TNodo *pAux = pLista->pPrimero;
+  TNodo *pAux = pLista->pPrimero; // Creamos un puntero auxiliar
 
-  // Recorremos la lista e imprimimos los valores
-  while (pAux != NULL)
+  while (pAux != NULL) // Recorremos la lista e imprimimos los valores de los nodos hasta llegar al final de la lista (NULL)
   {
-    printf("%d\n", pAux->valor);
-    pAux = pAux->pSiguiente;
+    printf("%d\n", pAux->valor); // Imprimimos el valor del nodo actual
+    pAux = pAux->pSiguiente;     // Asignamos el siguiente nodo al nodo actual
   }
-  printf("\n");
+  printf("\n"); // Imprimimos un salto de linea
 }
 
 // Devuelve la longitud de la lista.
 int longitud(TLista *pLista)
 {
-  TNodo *pAux = pLista->pPrimero;
-  int longitud = 0;
+  TNodo *pAux = pLista->pPrimero; // Creamos un puntero auxiliar
+  int longitud = 0;               // Creamos una variable para almacenar la longitud
 
-  // Recorremos la lista y contamos los nodos
-  while (pAux != NULL)
+  while (pAux != NULL) // Recorremos la lista hasta llegar al final de la lista (NULL) y contamos los nodos que hay en la lista (longitud)
   {
-    longitud++;
-    pAux = pAux->pSiguiente;
+    longitud++;              // Aumentamos la longitud
+    pAux = pAux->pSiguiente; // Asignamos el siguiente nodo al nodo actual
   }
 
-  // Devolvemos la longitud
-  return longitud;
+  return longitud; // Devolvemos la longitud
 }
