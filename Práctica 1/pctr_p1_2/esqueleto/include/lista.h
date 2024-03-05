@@ -24,7 +24,7 @@ void insertarN(TLista *pLista, int index, char *valor);
 void eliminar(TLista *pLista);
 void eliminarN(TLista *pLista, int index);
 
-int getElementoN(TLista *pLista, int index);
+char* getElementoN(TLista *pLista, int index);
 
 void imprimir(TLista *pLista);
 int longitud(TLista *pLista);

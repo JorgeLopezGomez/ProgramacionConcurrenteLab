@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <lista.h>
+#include <string.h>
 
 // Crea una lista con un nodo.
 void crear(TLista *pLista, char *valor)
@@ -169,12 +170,12 @@ void eliminarN(TLista *pLista, int index)
 }
 
 // Obtiene el elemento n(index) de la lista.
-int getElementoN(TLista *pLista, int index)
+char* getElementoN(TLista *pLista, int index)
 {
   if (index < 0 || pLista->pPrimero == NULL)
   {
     fprintf(stderr, "ERROR. El indice es invalido o lista vacia.\n");
-    return -1;
+    return NULL;
   }
 
   // Recorremos la lista hasta llegar al nodo en la posicion index
@@ -184,7 +185,7 @@ int getElementoN(TLista *pLista, int index)
     if (pActual->pSiguiente == NULL)
     {
       fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n");
-      return -1;
+      return NULL;
     }
     pActual = pActual->pSiguiente;
   }
@@ -200,7 +201,7 @@ void imprimir(TLista *pLista)
 
   while (pAux != NULL) // Recorremos la lista e imprimimos los valores de los nodos hasta llegar al final de la lista (NULL)
   {
-    printf("%d\n", pAux->valor); // Imprimimos el valor del nodo actual
+    printf("%s\n", pAux->valor); // Imprimimos el valor del nodo actual
     pAux = pAux->pSiguiente;     // Asignamos el siguiente nodo al nodo actual
   }
   printf("\n"); // Imprimimos un salto de linea
