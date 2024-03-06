@@ -40,78 +40,68 @@ void insertar(TLista *pLista, char *valor)
   strcpy(pNodoValor, valor);                               // Copiamos el valor pasado por parametro al nuevo nodo
   pNodo->valor = pNodoValor;                               // Asignamos el valor al nuevo nodo
   pNodo->pSiguiente = pLista->pPrimero;                    // Asignamos el primer nodo de la lista como siguiente del nuevo nodo
+  pLista->pPrimero = pNodo;                                // Asignamos el nuevo nodo como primer nodo de la lista
 }
 
 // Inserta al final de la lista.
 void insertarFinal(TLista *pLista, char *valor)
 {
-  TNodo *nuevoNodo = malloc(sizeof(TNodo));
-  nuevoNodo->valor = valor;
-  nuevoNodo->pSiguiente = NULL;
-
-  // Si la lista esta vacia, creamos un nodo con el valor y lo asignamos como primer nodo
-  if (pLista->pPrimero == NULL)
+  if (pLista->pPrimero == NULL) // Si la lista está vacía
   {
-    crear(pLista, valor);
+    crear(pLista, valor); // Creamos un nodo con el valor y lo asignamos como primer nodo
   }
-  else // Si no, recorremos la lista hasta llegar al ultimo nodo y lo asignamos como siguiente del ultimo nodo
+  else // Si la lista no está vacía
   {
-    TNodo *pAux = pLista->pPrimero;
-    while (pAux->pSiguiente != NULL)
+    struct Nodo *pNodo = malloc(sizeof(TNodo)); // Reservamos memoria para el nuevo nodo
+
+    char *pNodoValor = malloc(strlen(valor) * sizeof(char)); // Reservamos memoria para el valor del nuevo nodo
+    strcpy(pNodoValor, valor);                               // Copiamos el valor pasado por parametro al nuevo nodo
+    pNodo->valor = pNodoValor;                               // Asignamos el valor al nuevo nodo
+    pNodo->pSiguiente = NULL;                                // El siguiente nodo del nuevo nodo es NULL porque es el último nodo
+
+    struct Nodo *pActual = pLista->pPrimero; // Empezamos desde el primer nodo
+    while (pActual->pSiguiente != NULL)      // Recorremos la lista hasta llegar al último nodo
     {
-      pAux = pAux->pSiguiente;
+      pActual = pActual->pSiguiente; // Asignamos el siguiente nodo al nodo actual
     }
-    pAux->pSiguiente = nuevoNodo;
+    pActual->pSiguiente = pNodo; // Asignamos el nuevo nodo como el siguiente nodo del último nodo
   }
 }
 
-// Suponemos n = 1, 2, ...
+// Inserta en la posición n(index) de la lista. Suponemos n = 1, 2, ...
 void insertarN(TLista *pLista, int index, char *valor)
 {
-  // Crear un nuevo nodo
-  TNodo *nuevoNodo = (TNodo *)malloc(sizeof(TNodo));
-  nuevoNodo->valor = valor;
-  nuevoNodo->pSiguiente = NULL;
-
-  // Si la lista esta vacia
-  if (pLista->pPrimero == NULL)
+  if (index < 0) // Si el indice es negativo
   {
-    // Si el indice es 1, creamos un nodo con el valor y lo asignamos como primer nodo
-    if (index != 1)
-    {
-      fprintf(stderr, "ERROR. El indice es diferente a 1. \n");
-      return;
-    }
-    else
-    {
-      pLista->pPrimero = nuevoNodo;
-      return;
-    }
+    fprintf(stderr, "ERROR. El indice es invalido.\n"); // Imprimimos un mensaje de error
+    return;                                             // Salimos de la funcion
   }
 
-  // Si se inserta al principio de la lista
-  if (index == 1)
+  if (index == 0) // Si el indice es 0, insertamos el nuevo nodo al principio de la lista
   {
-    nuevoNodo->pSiguiente = pLista->pPrimero;
-    pLista->pPrimero = nuevoNodo;
-    return;
+    insertar(pLista, valor); // Insertamos el nuevo nodo al principio de la lista
+    return;                  // Salimos de la funcion
   }
 
-  // Encontrar el nodo anterior a la posicion que queremos insertar
-  TNodo *previo = pLista->pPrimero;
-  for (int i = 1; i < index - 1; i++)
+  TNodo *pActual = pLista->pPrimero;  // Creamos un puntero auxiliar y lo asignamos al primer nodo de la lista
+  for (int i = 0; i < index - 1; i++) // Recorremos la lista hasta llegar al nodo en la posicion index - 1
   {
-    if (previo->pSiguiente == NULL)
+    if (pActual->pSiguiente == NULL) // Si el siguiente nodo es NULL, es porque hemos llegado al final de la lista
     {
-      fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n");
-      return;
+      fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n"); // Imprimimos un mensaje de error
+      return;                                                                      // Salimos de la funcion
     }
-    previo = previo->pSiguiente;
+    pActual = pActual->pSiguiente; // Asignamos el siguiente nodo al nodo actual
   }
 
-  // Insertar el nuevo nodo despues del nodo anterior
-  nuevoNodo->pSiguiente = previo->pSiguiente;
-  previo->pSiguiente = nuevoNodo;
+  // Insertamos el nuevo nodo en la posicion index
+  TNodo *pNodo = malloc(sizeof(TNodo)); // Reservamos memoria para el nuevo
+
+  char *pNodoValor = malloc((strlen(valor) + 1) * sizeof(char)); // Reservamos memoria para el valor del nuevo nodo
+  strcpy(pNodoValor, valor);                                     // Copiamos el valor pasado por parametro al nuevo nodo
+  pNodo->valor = pNodoValor;                                     // Asignamos el valor al nuevo nodo
+  pNodo->pSiguiente = pActual->pSiguiente;                       // Asignamos el siguiente nodo del nodo actual como siguiente del nuevo nodo
+  pActual->pSiguiente = pNodo;                                   // Asignamos el nuevo nodo como el siguiente nodo del nodo actual
 }
 
 // Elimina el primer elemento de la lista.
@@ -130,68 +120,65 @@ void eliminar(TLista *pLista)
 // Elimina el elemento n(index) de la lista.
 void eliminarN(TLista *pLista, int index)
 {
-  if (index < 0 || pLista->pPrimero == NULL)
+  if (index < 0 || pLista->pPrimero == NULL) // Si el indice es negativo o la lista esta vacia
   {
-    fprintf(stderr, "ERROR. El indice es invalido o lista esta vacia.\n");
-    return;
+    fprintf(stderr, "ERROR. El indice es invalido o lista esta vacia.\n"); // Imprimimos un mensaje de error
+    return;                                                                // Devolvemos NULLLiberamos la memoria del valor del nodo
   }
 
-  // Si el indice es 0, eliminamos el primer nodo
-  if (index == 0)
+  if (index == 0) // Si el indice es 0, eliminamos el primer nodo
   {
-    TNodo *pAux = pLista->pPrimero;
-    pLista->pPrimero = pLista->pPrimero->pSiguiente;
-    free(pAux);
-    return;
+    TNodo *pAux = pLista->pPrimero;                  // Creamos un puntero auxiliar
+    pLista->pPrimero = pLista->pPrimero->pSiguiente; // Asignamos el siguiente nodo al primer nodo
+    free(pAux->valor);                               // Liberamos la memoria del valor del nodo
+    free(pAux);                                      // Liberamos el primer nodo
+    return;                                          // Salimos de la funcion
   }
 
-  // Recorremos la lista hasta llegar al nodo anterior al que queremos eliminar
-  TNodo *pActual = pLista->pPrimero;
-  for (int i = 0; i < index - 1; i++)
+  TNodo *pActual = pLista->pPrimero;  // Creamos un puntero auxiliar y lo asignamos al primer nodo de la lista
+  for (int i = 0; i < index - 1; i++) // Recorremos la lista hasta llegar al nodo en la posicion index - 1
   {
-    if (pActual->pSiguiente == NULL)
+    if (pActual->pSiguiente == NULL) // Si el siguiente nodo es NULL, es porque hemos llegado al final de la lista
     {
-      fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n");
-      return;
+      fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n"); // Imprimimos un mensaje de error
+      return;                                                                      // Salimos de la funcion
     }
-    pActual = pActual->pSiguiente;
+    pActual = pActual->pSiguiente; // Asignamos el siguiente nodo al nodo actual
   }
 
-  // Eliminamos el nodo en la posicion index
-  TNodo *pAux = pActual->pSiguiente;
-  if (pAux == NULL)
+  TNodo *pAux = pActual->pSiguiente; // Creamos un puntero auxiliar y lo asignamos al siguiente nodo del nodo actual
+  if (pAux == NULL)                  // Si el siguiente nodo es NULL, es porque hemos llegado al final de la lista
   {
-    fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n");
-    return;
+    fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n"); // Imprimimos un mensaje de error
+    return;                                                                      // Salimos de la funcion
   }
 
-  pActual->pSiguiente = pAux->pSiguiente;
-  free(pAux);
+  pActual->pSiguiente = pAux->pSiguiente; // Asignamos el siguiente nodo del siguiente nodo al nodo actual
+  free(pAux->valor);                      // Liberamos la memoria del valor del nodo
+  free(pAux);                             // Liberamos el siguiente nodo
 }
 
 // Obtiene el elemento n(index) de la lista.
-char* getElementoN(TLista *pLista, int index)
+char *getElementoN(TLista *pLista, int index)
 {
-  if (index < 0 || pLista->pPrimero == NULL)
+  if (index < 0 || pLista->pPrimero == NULL) // Si el indice es negativo o la lista esta vacia
   {
-    fprintf(stderr, "ERROR. El indice es invalido o lista vacia.\n");
-    return NULL;
+    fprintf(stderr, "ERROR. El indice es invalido o lista vacia.\n"); // Imprimimos un mensaje de error
+    return NULL;                                                      // Devolvemos NULL
   }
 
-  // Recorremos la lista hasta llegar al nodo en la posicion index
-  TNodo *pActual = pLista->pPrimero;
-  for (int i = 0; i < index; i++)
+  TNodo *pActual = pLista->pPrimero; // Creamos un puntero auxiliar y lo asignamos al primer nodo de la lista
+  for (int i = 0; i < index; i++)    // Recorremos la lista hasta llegar al nodo en la posicion index
   {
-    if (pActual->pSiguiente == NULL)
+    if (pActual->pSiguiente == NULL) // Si el siguiente nodo es NULL, es porque hemos llegado al final de la lista
     {
-      fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n");
-      return NULL;
+      fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n"); // Imprimimos un mensaje de error
+      return NULL;                                                                 // Devolvemos NULL
     }
-    pActual = pActual->pSiguiente;
+    pActual = pActual->pSiguiente; // Asignamos el siguiente nodo al nodo actual
   }
 
-  // Devolvemos el valor del nodo en la posicion index
-  return pActual->valor;
+  return pActual->valor; // Devolvemos el valor del nodo en la posicion index
 }
 
 // Imprime la lista.
