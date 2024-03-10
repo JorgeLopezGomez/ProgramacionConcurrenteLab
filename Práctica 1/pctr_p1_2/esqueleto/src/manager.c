@@ -10,18 +10,18 @@
 #include <definitions.h>
 #include <lista.h>
 
-void procesar_argumentos(int argc, char *argv[], char **filename, char **pattern, int *lines);
-void instalar_manejador_senhal();
-void manejador_senhal(int sign);
-void procesar_patrones(const char *fichero_patrones);
-void procesar_linea(char *linea);
-void iniciar_tabla_procesos(int n_procesos_contador, int n_procesos_procesador);
-void crear_procesos(const char *nombre_fichero);
-void lanzar_proceso_contador(const int indice_tabla, const char *linea, const char *numero_linea_str);
-void lanzar_proceso_procesador(const int indice_tabla, const char *patron, const char *nombre_fichero);
-void esperar_procesos();
-void terminar_procesos(void);
-void liberar_recursos();
+void procesar_argumentos(int argc, char *argv[], char **filename, char **pattern, int *lines);          // Procesar los argumentos pasados al programa
+void instalar_manejador_senhal();                                                                       // Instalar el manejador de señales
+void manejador_senhal(int sign);                                                                        // Manejador de señales
+void procesar_patrones(const char *fichero_patrones);                                                   // Procesar los patrones del fichero
+void procesar_linea(char *linea);                                                                       // Procesar una línea del fichero de patrones
+void iniciar_tabla_procesos(int n_procesos_contador, int n_procesos_procesador);                        // Iniciar la tabla de procesos
+void crear_procesos(const char *nombre_fichero);                                                        // Crear los procesos
+void lanzar_proceso_contador(const int indice_tabla, const char *linea, const char *numero_linea_str);  // Lanzar un proceso contador
+void lanzar_proceso_procesador(const int indice_tabla, const char *patron, const char *nombre_fichero); // Lanzar un proceso procesador
+void esperar_procesos();                                                                                // Esperar a que terminen los procesos
+void terminar_procesos(void);                                                                           // Terminar los procesos
+void liberar_recursos();                                                                                // Liberar los recursos
 
 int g_nProcesses;
 struct TProcess_t *g_process_table;
@@ -142,7 +142,7 @@ void crear_procesos(const char *nombre_fichero)
   FILE *fp;
   char linea[PATH_MAX], numero_linea_str[11];
   int indice_tabla = 0;
-  
+
   if ((fp = fopen(nombre_fichero, "r")) == NULL)
   {
     fprintf(stderr, "Error al abrir el fichero %s\n", nombre_fichero);
