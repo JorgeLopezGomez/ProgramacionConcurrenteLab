@@ -4,15 +4,15 @@
 #include <string.h>
 
 // Constantes
-#define MAX_LINE_LENGTH 1024
-#define MAX_PATRON_LENGTH 100
+#define MAX_LONGITUD_LINEA 1024
+#define MAX_LONGITUD_PATRON 100
 
 // Funcion principal
 int main(int argc, char *argv[])
 {
-    char line[MAX_LINE_LENGTH];     // Linea leida del archivo
-    char patron[MAX_PATRON_LENGTH]; // Patron a buscar
-    int lineNum = 0;                // Numero de linea
+    char line[MAX_LONGITUD_LINEA];    // Linea leida del archivo
+    char patron[MAX_LONGITUD_PATRON]; // Patron a buscar
+    int lineNum = 0;                  // Numero de linea
 
     if (argc != 3) // Comprobar si se pasan los argumentos necesarios para el programa
     {
@@ -20,13 +20,13 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;                                                  // Salir con error
     }
 
-    char *filePath = argv[1];                 // Ruta del archivo
-    if (strlen(argv[2]) >= MAX_PATRON_LENGTH) // Comprobar si el patron es demasiado largo
+    char *filePath = argv[1];                  // Ruta del archivo
+    if (strlen(argv[2]) >= MAX_LONGITUD_LINEA) // Comprobar si el patron es demasiado largo
     {
         fprintf(stderr, "ERROR. El patron es demasiado largo.\n"); // Mensaje de error
         return EXIT_FAILURE;                                       // Salir con error
     }
-    strncpy(patron, argv[2], MAX_PATRON_LENGTH); // Copiar el patron
+    strncpy(patron, argv[2], MAX_LONGITUD_PATRON); // Copiar el patron
 
     FILE *fp = fopen(filePath, "r"); // Abrir el archivo en modo lectura
     if (fp == NULL)                  // Comprobar si se ha podido abrir el archivo
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;       // Salir con error
     }
 
-    while (fgets(line, MAX_LINE_LENGTH, fp) != NULL) // Lee una linea del archivo
+    while (fgets(line, MAX_LONGITUD_LINEA, fp) != NULL) // Lee una linea del archivo
     {
         lineNum++; // Incrementa el contador de lineas
 
