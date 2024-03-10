@@ -7,7 +7,7 @@ void contar(char *line, int line_number); // line_number es el número de línea
 // Función principal
 int main(int argc, char *argv[])
 {
-  if (argc < 3)
+  if (argc < 3)                                                   // Comprobar si se pasan los argumentos necesarios para el programa
   {                                                               // Si no se pasan los argumentos necesarios
     fprintf(stderr, "Uso: %s <linea> <numero_linea>\n", argv[0]); // Mensaje de error
     return EXIT_FAILURE;                                          // Salir con error
@@ -28,23 +28,23 @@ void contar(char *linea, int numero_linea) // Función para contar las palabras 
 
   do // Bucle para recorrer la línea
   {
-    switch (*it)
+    switch (*it) // Comprobar el carácter actual de la línea
     {
-    case '\0':
-    case ' ':
-    case '\t':
-    case '\n':
-    case '\r':
-      if (dentro_palabra)
+    case '\0':            // Si es el final de la línea
+    case ' ':             // Si es un espacio
+    case '\t':            // Si es un tabulador
+    case '\n':            // Si es un salto de línea
+    case '\r':            // Si es un retorno de carro
+      if (dentro_palabra) // Si se estaba dentro de una palabra
       {
-        dentro_palabra = 0;
-        n_palabras++;
+        dentro_palabra = 0; // Ya no se está dentro de una palabra
+        n_palabras++;       // Incrementar el contador de palabras
       }
-      break;
+      break; // Salir del switch y continuar con el bucle
     default:
-      dentro_palabra = 1;
+      dentro_palabra = 1; // Si no es un espacio, tabulador, salto de línea o retorno de carro, se está dentro de una palabra
     }
-  } while (*it++);
+  } while (*it++); // Incrementar el iterador y comprobar si se ha llegado al final de la línea
 
   printf("[CONTADOR %d] La linea '%d' tiene %d palabras\n", getpid(), numero_linea, n_palabras); // Imprimir el resultado
 }
