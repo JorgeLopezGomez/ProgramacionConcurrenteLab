@@ -3,49 +3,49 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Constantes
 #define MAX_LINE_LENGTH 1024
 #define MAX_PATRON_LENGTH 100
 
+// Funcion principal
 int main(int argc, char *argv[])
 {
-    char line[MAX_LINE_LENGTH];
-    char patron[MAX_PATRON_LENGTH];
-    int lineNum = 0;
+    char line[MAX_LINE_LENGTH];     // Linea leida del archivo
+    char patron[MAX_PATRON_LENGTH]; // Patron a buscar
+    int lineNum = 0;                // Numero de linea
 
-    // Verifica si se proporcionaron los argumentos correctos
-    if (argc != 3)
+    if (argc != 3) // Comprobar si se pasan los argumentos necesarios para el programa
     {
-        fprintf(stderr, "Uso: %s <ruta_archivo> <patron>\n", argv[0]);
-        return EXIT_FAILURE;
+        fprintf(stderr, "ERROR. Uso: %s <ruta_archivo> <patron>\n", argv[0]); // Mensaje de error
+        return EXIT_FAILURE;                                                  // Salir con error
     }
 
-    // Obtiene la ruta del archivo y el patrón de los argumentos
-    char *filePath = argv[1];
-    strncpy(patron, argv[2], MAX_PATRON_LENGTH);
-    patron[strcspn(patron, "\n")] = 0; // Elimina el salto de línea al final del patrón
-
-    // Abre el archivo
-    FILE *fp = fopen(filePath, "r");
-    if (fp == NULL)
+    char *filePath = argv[1];                 // Ruta del archivo
+    if (strlen(argv[2]) >= MAX_PATRON_LENGTH) // Comprobar si el patron es demasiado largo
     {
-        fprintf(stderr, "ERROR. No se pudo abrir el archivo %s.\n", filePath);
-        return EXIT_FAILURE;
+        fprintf(stderr, "ERROR. El patron es demasiado largo.\n"); // Mensaje de error
+        return EXIT_FAILURE;                                       // Salir con error
+    }
+    strncpy(patron, argv[2], MAX_PATRON_LENGTH); // Copiar el patron
+
+    FILE *fp = fopen(filePath, "r"); // Abrir el archivo en modo lectura
+    if (fp == NULL)                  // Comprobar si se ha podido abrir el archivo
+    {
+        fprintf(stderr, filePath); // Mensaje de error
+        return EXIT_FAILURE;       // Salir con error
     }
 
-    // Procesa el archivo
-    while (fgets(line, MAX_LINE_LENGTH, fp) != NULL)
+    while (fgets(line, MAX_LINE_LENGTH, fp) != NULL) // Lee una linea del archivo
     {
-        lineNum++;
+        lineNum++; // Incrementa el contador de lineas
 
-        // Busca el patrón en la línea
-        if (strstr(line, patron) != NULL)
+        if (strstr(line, patron) != NULL) // Comprobar si el patron se encuentra en la linea
         {
-            printf("[PROCESADOR %d] Patron '%s' encontrado en la línea %d\n", getpid(), patron, lineNum);
+            printf("[PROCESADOR %d] Patron '%s' encontrado en la línea %d\n", getpid(), patron, lineNum); // Imprimir el resultado
         }
     }
 
-    // Cierra el archivo
-    fclose(fp);
+    fclose(fp); // Cerrar el archivo
 
-    return EXIT_SUCCESS;
+    return EXIT_SUCCESS; // Salir con exito
 }
