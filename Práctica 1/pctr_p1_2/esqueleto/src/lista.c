@@ -167,8 +167,8 @@ char *getElementoN(TLista *pLista, int index)
     return NULL;                                                      // Devolvemos NULL
   }
 
-  TNodo *pActual = pLista->pPrimero; // Creamos un puntero auxiliar y lo asignamos al primer nodo de la lista
-  for (int i = 0; i < index - 1; i++)    // Recorremos la lista hasta llegar al nodo en la posicion index
+  TNodo *pActual = pLista->pPrimero;  // Creamos un puntero auxiliar y lo asignamos al primer nodo de la lista
+  for (int i = 0; i < index - 1; i++) // Recorremos la lista hasta llegar al nodo en la posicion index
   {
     if (pActual->pSiguiente == NULL) // Si el siguiente nodo es NULL, es porque hemos llegado al final de la lista
     {
