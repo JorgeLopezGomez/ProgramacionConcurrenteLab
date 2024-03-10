@@ -74,7 +74,7 @@ void insertarN(TLista *pLista, int index, char *valor)
   if (index < 0) // Si el indice es negativo
   {
     fprintf(stderr, "ERROR. El indice es invalido.\n"); // Imprimimos un mensaje de error
-    return;                                             // Salimos de la funcion
+    exit(EXIT_FAILURE);                                 // Salimos de la funcion
   }
 
   if (index == 0) // Si el indice es 0, insertamos el nuevo nodo al principio de la lista
@@ -89,7 +89,7 @@ void insertarN(TLista *pLista, int index, char *valor)
     if (pActual->pSiguiente == NULL) // Si el siguiente nodo es NULL, es porque hemos llegado al final de la lista
     {
       fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n"); // Imprimimos un mensaje de error
-      return;                                                                      // Salimos de la funcion
+      exit(EXIT_FAILURE);                                                          // Salimos de la funcion
     }
     pActual = pActual->pSiguiente; // Asignamos el siguiente nodo al nodo actual
   }
@@ -123,7 +123,7 @@ void eliminarN(TLista *pLista, int index)
   if (index < 0 || pLista->pPrimero == NULL) // Si el indice es negativo o la lista esta vacia
   {
     fprintf(stderr, "ERROR. El indice es invalido o lista esta vacia.\n"); // Imprimimos un mensaje de error
-    return;                                                                // Salimos de la funcion
+    exit(EXIT_FAILURE);                                                    // Salimos de la funcion
   }
 
   if (index == 0) // Si el indice es 0, eliminamos el primer nodo
@@ -141,7 +141,7 @@ void eliminarN(TLista *pLista, int index)
     if (pActual->pSiguiente == NULL) // Si el siguiente nodo es NULL, es porque hemos llegado al final de la lista
     {
       fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n"); // Imprimimos un mensaje de error
-      return;                                                                      // Salimos de la funcion
+      exit(EXIT_FAILURE);                                                          // Salimos de la funcion
     }
     pActual = pActual->pSiguiente; // Asignamos el siguiente nodo al nodo actual
   }
@@ -150,7 +150,7 @@ void eliminarN(TLista *pLista, int index)
   if (pAux == NULL)                  // Si el siguiente nodo es NULL, es porque hemos llegado al final de la lista
   {
     fprintf(stderr, "ERROR. El indice es mayor que la longitud de la lista.\n"); // Imprimimos un mensaje de error
-    return;                                                                      // Salimos de la funcion
+    exit(EXIT_FAILURE);                                                          // Salimos de la funcion
   }
 
   pActual->pSiguiente = pAux->pSiguiente; // Asignamos el siguiente nodo del siguiente nodo al nodo actual

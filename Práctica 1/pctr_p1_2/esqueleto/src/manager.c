@@ -247,13 +247,15 @@ void esperar_procesos()
   }
 }
 
-void liberar_recursos() // Liberar los recursos
+// Liberar los recursos
+void liberar_recursos()
 {
   free(g_process_table); // Liberar la tabla de procesos
   destruir(patrones);    // Liberar la lista de patrones
 }
 
-void terminar_procesos(void) // Terminar los procesos
+// Terminar los procesos
+void terminar_procesos(void)
 {
   int i; // Indice de la tabla de procesos
 
