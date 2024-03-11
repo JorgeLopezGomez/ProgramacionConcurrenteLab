@@ -10,9 +10,9 @@
 // Funcion principal
 int main(int argc, char *argv[])
 {
-    char linea[MAX_LONGITUD_LINEA];    // Linea leida del archivo
+    char linea[MAX_LONGITUD_LINEA];   // Linea leida del archivo
     char patron[MAX_LONGITUD_PATRON]; // Patron a buscar
-    int numero_linea = 0;                  // Numero de linea
+    int numero_linea = 0;             // Numero de linea
 
     if (argc != 3) // Comprobar si se pasan los argumentos necesarios para el programa
     {
