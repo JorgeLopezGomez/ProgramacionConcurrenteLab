@@ -27,7 +27,7 @@ int g_nProcesses;                   // Numero de procesos
 struct TProcess_t *g_process_table; // Tabla de procesos
 TLista *patrones;                   // Lista de patrones
 
-// Función principal
+// Funcion principal
 int main(int argc, char *argv[])
 {
   char *nombre_fichero = NULL, *fichero_patrones = NULL; // Nombres de los ficheros
