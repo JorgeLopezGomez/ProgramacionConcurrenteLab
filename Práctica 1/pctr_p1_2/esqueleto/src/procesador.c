@@ -10,9 +10,9 @@
 // Funcion principal
 int main(int argc, char *argv[])
 {
-    char line[MAX_LONGITUD_LINEA];    // Linea leida del archivo
+    char linea[MAX_LONGITUD_LINEA];    // Linea leida del archivo
     char patron[MAX_LONGITUD_PATRON]; // Patron a buscar
-    int lineNum = 0;                  // Numero de linea
+    int numero_linea = 0;                  // Numero de linea
 
     if (argc != 3) // Comprobar si se pasan los argumentos necesarios para el programa
     {
@@ -35,13 +35,13 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;       // Salir con error
     }
 
-    while (fgets(line, MAX_LONGITUD_LINEA, fp) != NULL) // Lee una linea del archivo
+    while (fgets(linea, MAX_LONGITUD_LINEA, fp) != NULL) // Lee una linea del archivo
     {
-        lineNum++; // Incrementa el contador de lineas
+        numero_linea++; // Incrementa el contador de lineas
 
-        if (strstr(line, patron) != NULL) // Comprobar si el patron se encuentra en la linea
+        if (strstr(linea, patron) != NULL) // Comprobar si el patron se encuentra en la linea
         {
-            printf("[PROCESADOR %d] Patron '%s' encontrado en la linea %d\n", getpid(), patron, lineNum); // Imprimir el resultado
+            printf("[PROCESADOR %d] Patron '%s' encontrado en la linea %d\n", getpid(), patron, numero_linea); // Imprimir el resultado
         }
     }
 
