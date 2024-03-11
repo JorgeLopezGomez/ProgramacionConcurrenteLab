@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;                                                  // Salir con error
     }
 
-    char *filePath = argv[1];                  // Ruta del archivo
+    char *ruta_archivo = argv[1];              // Ruta del archivo
     if (strlen(argv[2]) >= MAX_LONGITUD_LINEA) // Comprobar si el patron es demasiado largo
     {
         fprintf(stderr, "ERROR. El patron es demasiado largo.\n"); // Mensaje de error
@@ -28,14 +28,14 @@ int main(int argc, char *argv[])
     }
     strncpy(patron, argv[2], MAX_LONGITUD_PATRON); // Copiar el patron
 
-    FILE *fp = fopen(filePath, "r"); // Abrir el archivo en modo lectura
-    if (fp == NULL)                  // Comprobar si se ha podido abrir el archivo
+    FILE *puntero_archivo = fopen(ruta_archivo, "r"); // Abrir el archivo en modo lectura
+    if (puntero_archivo == NULL)                      // Comprobar si se ha podido abrir el archivo
     {
-        fprintf(stderr, filePath); // Mensaje de error
-        return EXIT_FAILURE;       // Salir con error
+        fprintf(stderr, ruta_archivo); // Mensaje de error
+        return EXIT_FAILURE;           // Salir con error
     }
 
-    while (fgets(linea, MAX_LONGITUD_LINEA, fp) != NULL) // Lee una linea del archivo
+    while (fgets(linea, MAX_LONGITUD_LINEA, puntero_archivo) != NULL) // Lee una linea del archivo
     {
         numero_linea++; // Incrementa el contador de lineas
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    fclose(fp); // Cerrar el archivo
+    fclose(puntero_archivo); // Cerrar el archivo
 
     return EXIT_SUCCESS; // Salir con exito
 }
