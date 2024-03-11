@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
         if (strstr(line, patron) != NULL) // Comprobar si el patron se encuentra en la linea
         {
-            printf("[PROCESADOR %d] Patron '%s' encontrado en la línea %d\n", getpid(), patron, lineNum); // Imprimir el resultado
+            printf("[PROCESADOR %d] Patron '%s' encontrado en la linea %d\n", getpid(), patron, lineNum); // Imprimir el resultado
         }
     }
 
