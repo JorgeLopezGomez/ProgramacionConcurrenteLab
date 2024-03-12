@@ -4,6 +4,8 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 // Estructura para almacenar los datos compartidos
 struct shared_data {
