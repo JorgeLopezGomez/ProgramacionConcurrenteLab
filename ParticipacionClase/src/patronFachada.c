@@ -23,16 +23,16 @@ void *crear_memoria_compartida(size_t tamano) { // Crear memoria compartida
 // Funcion para inicializar las variables compartidas
 void inicializar_variables_compartidas(struct datos_compartidos *datos) {
     datos->saldo_en_euros = 0; // Inicializacion del saldo compartido
-    sem_init(&(datos->sem_saldo), 1, 1); // Inicializacion del semaforo
+    sem_init(&datos->sem_saldo, 1, 1); // Inicializacion del semaforo
 }
 
 // Funcion para realizar ingresos
 void ahorrador(struct datos_compartidos *datos, int num_ingresos, int cantidad_ingreso) {
     for (int i = 0; i < num_ingresos; i++) {
-        sem_wait(&(datos->sem_saldo)); // Esperar por el semaforo
+        sem_wait(&datos->sem_saldo); // Esperar por el semaforo
         datos->saldo_en_euros += cantidad_ingreso; // Modificar el saldo compartido
         printf("Ahorrador: Ingreso de %d euros. Nuevo saldo: %d euros\n", cantidad_ingreso, datos->saldo_en_euros); // Imprimir mensaje de ingreso
-        sem_post(&(datos->sem_saldo)); // Liberar el semaforo
+        sem_post(&datos->sem_saldo); // Liberar el semaforo
         usleep(100000); // Simular procesamiento
     }
 }
@@ -40,14 +40,14 @@ void ahorrador(struct datos_compartidos *datos, int num_ingresos, int cantidad_i
 // Funcion para realizar retiradas
 void gastos(struct datos_compartidos *datos, int num_retiradas, int cantidad_retirada) {
     for (int i = 0; i < num_retiradas; i++) { // Bucle para realizar retiradas
-        sem_wait(&(datos->sem_saldo)); // Esperar por el semaforo
+        sem_wait(&datos->sem_saldo); // Esperar por el semaforo
         if (datos->saldo_en_euros >= cantidad_retirada) { // Comprobar si hay suficiente saldo
             datos->saldo_en_euros -= cantidad_retirada; // Modificar el saldo compartido
             printf("Gastos: Retirada de %d euros. Nuevo saldo: %d euros\n", cantidad_retirada, datos->saldo_en_euros); // Imprimir mensaje de retirada
         } else {
             printf("Gastos: No hay suficiente saldo para retirar %d euros\n", cantidad_retirada); // Imprimir mensaje de error
         }
-        sem_post(&(datos->sem_saldo)); // Liberar el semaforo
+        sem_post(&datos->sem_saldo); // Liberar el semaforo
         usleep(150000); // Simular procesamiento
     }
 }
@@ -103,7 +103,7 @@ int main() {
     }
 
     // Liberar recursos
-    sem_destroy(&(datos->sem_saldo)); // Destruir el semaforo
+    sem_destroy(&datos->sem_saldo); // Destruir el semaforo
     munmap(datos, sizeof(struct datos_compartidos)); // Liberar memoria compartida 
 
     return 0; // Terminar el proceso principal
