@@ -14,7 +14,7 @@ struct datos_compartidos {
 };
 
 // Funciones para crear y gestionar la memoria compartida
-void *crear_memoria_compartida(size_t tamano) { // Crear memoria compartida
+void *crear_memoria_compartida(size_t tamano) { 
     int proteccion = PROT_READ | PROT_WRITE; // Lectura y escritura 
     int visibilidad = MAP_SHARED | MAP_ANONYMOUS; // Compartida y sin archivo asociado 
     return mmap(NULL, tamano, proteccion, visibilidad, -1, 0); // Crear memoria compartida
@@ -28,7 +28,7 @@ void inicializar_variables_compartidas(struct datos_compartidos *datos) {
 
 // Funcion para realizar ingresos
 void ahorrador(struct datos_compartidos *datos, int num_ingresos, int cantidad_ingreso) {
-    for (int i = 0; i < num_ingresos; i++) {
+    for (int i = 0; i < num_ingresos; i++) { // Bucle para realizar ingresos 
         sem_wait(&datos->sem_saldo); // Esperar por el semaforo
         datos->saldo_en_euros += cantidad_ingreso; // Modificar el saldo compartido
         printf("Ahorrador: Ingreso de %d euros. Nuevo saldo: %d euros\n", cantidad_ingreso, datos->saldo_en_euros); // Imprimir mensaje de ingreso
