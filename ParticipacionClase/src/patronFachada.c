@@ -7,104 +7,181 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-// Estructura para almacenar los datos compartidos
-struct datos_compartidos {
-    int saldo_en_euros; // Saldo compartido
-    sem_t sem_saldo; // Semáforo para proteger el acceso al saldo
+// Estructura que almacena los datos compartidos entre los procesos
+struct datos_compartidos
+{
+    int saldo_en_euros; // Saldo en euros
+    sem_t *sem_saldo;   // Semaforo para controlar el acceso a la variable saldo_en_euros
 };
 
-// Funciones para crear y gestionar la memoria compartida
-void *crear_memoria_compartida(size_t tamano) { 
-    int proteccion = PROT_READ | PROT_WRITE; // Lectura y escritura 
-    int visibilidad = MAP_SHARED | MAP_ANONYMOUS; // Compartida y sin archivo asociado 
-    return mmap(NULL, tamano, proteccion, visibilidad, -1, 0); // Crear memoria compartida
+// Funciones para crear un semaforo
+sem_t *crear_sem(char *nombre, int valor_inicial)
+{
+    sem_t *sem = sem_open(nombre, O_CREAT, 0644, valor_inicial); // Crea un semaforo con el nombre y el valor inicial
+
+    // Si hay un error al crear el semaforo
+    if (sem == SEM_FAILED)
+    {
+        fprintf(stderr, "sem_open"); // Se imprime un mensaje de error
+        exit(EXIT_FAILURE);          // Se termina el programa
+    }
+    return sem;
 }
 
-// Funcion para inicializar las variables compartidas
-void inicializar_variables_compartidas(struct datos_compartidos *datos) {
-    datos->saldo_en_euros = 0; // Inicializacion del saldo compartido
-    sem_init(&datos->sem_saldo, 1, 1); // Inicializacion del semaforo
-}
+// Funciones para esperar y senalizar un semaforo
+void wait_sem(sem_t *sem)
+{
 
-// Funcion para realizar ingresos
-void ahorrador(struct datos_compartidos *datos, int num_ingresos, int cantidad_ingreso) {
-    for (int i = 0; i < num_ingresos; i++) { // Bucle para realizar ingresos 
-        sem_wait(&datos->sem_saldo); // Esperar por el semaforo
-        datos->saldo_en_euros += cantidad_ingreso; // Modificar el saldo compartido
-        printf("Ahorrador: Ingreso de %d euros. Nuevo saldo: %d euros\n", cantidad_ingreso, datos->saldo_en_euros); // Imprimir mensaje de ingreso
-        sem_post(&datos->sem_saldo); // Liberar el semaforo
-        usleep(100000); // Simular procesamiento
+    // Si hay un error al esperar el semaforo
+    if (sem_wait(sem) < 0)
+    {
+        fprintf(stderr, "sem_wait"); // Se imprime un mensaje de error
+        exit(EXIT_FAILURE);          // Se termina el programa
+    }
+}
+// Funciones para esperar y senalizar un semaforo
+void signal_sem(sem_t *sem)
+{
+
+    // Si hay un error al esperar el semaforo
+    if (sem_post(sem) < 0)
+    {
+        fprintf(stderr, "sem_post"); // Se imprime un mensaje de error
+        exit(EXIT_FAILURE);          // Se termina el programa
     }
 }
 
-// Funcion para realizar retiradas
-void gastos(struct datos_compartidos *datos, int num_retiradas, int cantidad_retirada) {
-    for (int i = 0; i < num_retiradas; i++) { // Bucle para realizar retiradas
-        sem_wait(&datos->sem_saldo); // Esperar por el semaforo
-        if (datos->saldo_en_euros >= cantidad_retirada) { // Comprobar si hay suficiente saldo
-            datos->saldo_en_euros -= cantidad_retirada; // Modificar el saldo compartido
-            printf("Gastos: Retirada de %d euros. Nuevo saldo: %d euros\n", cantidad_retirada, datos->saldo_en_euros); // Imprimir mensaje de retirada
-        } else {
-            printf("Gastos: No hay suficiente saldo para retirar %d euros\n", cantidad_retirada); // Imprimir mensaje de error
+// Funcion para destruir un semaforo
+void destruir_sem(char *nombre)
+{
+
+    // Si hay un error al destruir el semaforo
+    if (sem_unlink(nombre) < 0)
+    {
+        fprintf(stderr, "sem_unlink"); // Se imprime un mensaje de error
+        exit(EXIT_FAILURE);            // Se termina el programa
+    }
+}
+
+// Funcion para crear memoria compartida
+void *crear_memoria_compartida(size_t tamano)
+{
+    int proteccion = PROT_READ | PROT_WRITE;                   // Lectura y escritura permitidas para el proceso de memoria
+    int visibilidad = MAP_SHARED | MAP_ANONYMOUS;              // Compartida y sin archivo asociado a la memoria compartida
+    return mmap(NULL, tamano, proteccion, visibilidad, -1, 0); // Devuelve un puntero a la memoria compartida
+}
+
+// Funcion para inicializar las variables compartidas
+void inicializar_variables_compartidas(struct datos_compartidos *datos)
+{
+    datos->saldo_en_euros = 0;                    // Inicializa el saldo en euros a 0
+    datos->sem_saldo = crear_sem("sem_saldo", 1); // Crea el semaforo para controlar el acceso a la variable saldo_en_euros
+}
+
+// Funcion para ahorrar dinero
+void ahorrador(struct datos_compartidos *datos, int num_ingresos, int cantidad_ingreso)
+{
+
+    // Bucle para realizar los ingresos
+    for (int i = 0; i < num_ingresos; i++)
+    {
+        wait_sem(datos->sem_saldo);                                                                                 // Espera el semaforo
+        datos->saldo_en_euros += cantidad_ingreso;                                                                  // Ingresa la cantidad de dinero
+        printf("Ahorrador: Ingreso de %d euros. Nuevo saldo: %d euros\n", cantidad_ingreso, datos->saldo_en_euros); // Imprime el ingreso
+        signal_sem(datos->sem_saldo);                                                                               // Senaliza el semaforo
+        usleep(100000);                                                                                             // Espera 100 milisegundos
+    }
+}
+
+// Funcion para retirar dinero
+void gastos(struct datos_compartidos *datos, int num_retiradas, int cantidad_retirada)
+{
+
+    // Bucle para realizar las retiradas
+    for (int i = 0; i < num_retiradas; i++)
+    {
+        wait_sem(datos->sem_saldo); // Espera el semaforo
+
+        // Si hay suficiente saldo para retirar la cantidad
+        if (datos->saldo_en_euros >= cantidad_retirada)
+        {
+            datos->saldo_en_euros -= cantidad_retirada;                                                                // Retira la cantidad de dinero
+            printf("Gastos: Retirada de %d euros. Nuevo saldo: %d euros\n", cantidad_retirada, datos->saldo_en_euros); // Imprime la retirada
         }
-        sem_post(&datos->sem_saldo); // Liberar el semaforo
-        usleep(150000); // Simular procesamiento
+        else
+        {                                                                                         // Si no hay suficiente saldo para retirar la cantidad
+            printf("Gastos: No hay suficiente saldo para retirar %d euros\n", cantidad_retirada); // Imprime que no hay suficiente saldo
+        }
+        signal_sem(datos->sem_saldo); // Senaliza el semaforo
+        usleep(150000);               // Espera 150 milisegundos
     }
 }
 
 // Funcion principal
-int main() {
-    const int NUM_AHORRADORES = 2; // Numero de ahorradores
-    const int NUM_GASTOS = 3; // Numero de gastos
-    const int NUM_INGRESOS = 5; // Numero de ingresos
-    const int NUM_RETIRADAS = 4; // Numero de retiradas
-    const int CANTIDAD_INGRESO = 100; // Cantidad de dinero a ingresar
-    const int CANTIDAD_RETIRADA = 150; // Cantidad de dinero a retirar
+int main()
+{
+    const int NUM_AHORRADORES = 2;     // Numero de ahorradores
+    const int NUM_GASTOS = 3;          // Numero de gastos
+    const int NUM_INGRESOS = 5;        // Numero de ingresos
+    const int NUM_RETIRADAS = 4;       // Numero de retiradas
+    const int CANTIDAD_INGRESO = 100;  // Cantidad de ingreso
+    const int CANTIDAD_RETIRADA = 150; // Cantidad de retirada
 
-    // Crear memoria compartida para almacenar datos
-    struct datos_compartidos *datos = crear_memoria_compartida(sizeof(struct datos_compartidos));
+    struct datos_compartidos *datos = crear_memoria_compartida(sizeof(struct datos_compartidos)); // Crea la memoria compartida para los datos compartidos
 
-    // Comprobar si se ha creado la memoria compartida
-    if (datos == NULL) { 
-        fprintf(stderr, "Error al crear memoria compartida"); // Imprimir mensaje de error
-        exit(EXIT_FAILURE); // Terminar el proceso principal
+    // Si hay un error al crear la memoria compartida
+    if (datos == NULL)
+    {
+        fprintf(stderr, "Error al crear memoria compartida"); // Se imprime un mensaje de error
+        exit(EXIT_FAILURE);                                   // Se termina el programa
     }
 
-    // Inicializar variables compartidas
-    inicializar_variables_compartidas(datos);
+    inicializar_variables_compartidas(datos); // Inicializa las variables compartidas
 
-    // Crear procesos ahorradores
-    for (int i = 0; i < NUM_AHORRADORES; i++) {
-        pid_t pid = fork(); // Crear un nuevo proceso hijo en cada iteracion del bucle de ahorradores de la clase principal
-        if (pid == 0) { // Proceso hijo
-            ahorrador(datos, NUM_INGRESOS, CANTIDAD_INGRESO); // Llamar a la funcion ahorrador para cada proceso hijo creado en la clase principal
-            exit(EXIT_SUCCESS); // Terminar el proceso hijo
-        } else if (pid < 0) { // Error en fork
-            fprintf(stderr, "Error al crear el proceso ahorrador"); // Imprimir mensaje de error
-            exit(EXIT_FAILURE); // Terminar el proceso principal
+    // Bucle para crear los procesos ahorradores
+    for (int i = 0; i < NUM_AHORRADORES; i++)
+    {
+        pid_t pid = fork(); // Crea un proceso hijo
+
+        // Si el proceso es el proceso hijo
+        if (pid == 0)
+        {
+            ahorrador(datos, NUM_INGRESOS, CANTIDAD_INGRESO); // Realiza los ingresos
+            exit(EXIT_SUCCESS);                               // Termina el proceso hijo
         }
-    } 
-
-    // Crear procesos gastos
-    for (int i = 0; i < NUM_GASTOS; i++) { // Bucle para crear procesos gastos
-        pid_t pid = fork(); // Crear un nuevo proceso hijo en cada iteracion del bucle de gastoses de la clase principal
-        if (pid == 0) { // Proceso hijo
-            gastos(datos, NUM_RETIRADAS, CANTIDAD_RETIRADA); // Llamar a la funcion gastos
-            exit(EXIT_SUCCESS); // Terminar el proceso hijo
-        } else if (pid < 0) { // Error en fork
-            fprintf(stderr, "Error al crear el proceso gastos"); // Imprimir mensaje de error
-            exit(EXIT_FAILURE); // Terminar el proceso principal
+        else if (pid < 0)
+        {                                                           // Si hay un error al crear el proceso ahorrador
+            fprintf(stderr, "Error al crear el proceso ahorrador"); // Se imprime un mensaje de error
+            exit(EXIT_FAILURE);                                     // Se termina el programa
         }
     }
 
-    // Esperar a que todos los procesos hijos terminen
-    for (int i = 0; i < NUM_AHORRADORES + NUM_GASTOS; i++) {
-        wait(NULL); // Esperar a que un proceso hijo termine
+    // Bucle para crear los procesos gastos
+    for (int i = 0; i < NUM_GASTOS; i++)
+    {
+        pid_t pid = fork(); // Crea un proceso hijo
+
+        // Si el proceso es el proceso hijo
+        if (pid == 0)
+        {
+            gastos(datos, NUM_RETIRADAS, CANTIDAD_RETIRADA); // Realiza las retiradas
+            exit(EXIT_SUCCESS);                              // Termina el proceso hijo
+        }
+        else if (pid < 0)
+        {                                                        // Si hay un error al crear el proceso gastos
+            fprintf(stderr, "Error al crear el proceso gastos"); // Se imprime un mensaje de error
+            exit(EXIT_FAILURE);                                  // Se termina el programa
+        }
     }
 
-    // Liberar recursos
-    sem_destroy(&datos->sem_saldo); // Destruir el semaforo
-    munmap(datos, sizeof(struct datos_compartidos)); // Liberar memoria compartida 
+    // Bucle para esperar a que terminen los procesos ahorradores y gastos
+    for (int i = 0; i < NUM_AHORRADORES + NUM_GASTOS; i++)
+    {
+        wait(NULL); // Espera a que termine un proceso hijo
+    }
 
-    return 0; // Terminar el proceso principal
+    destruir_sem("sem_saldo");                       // Destruye el semaforo
+    munmap(datos, sizeof(struct datos_compartidos)); // Libera la memoria compartida
+
+    return 0; // Termina el programa
 }
