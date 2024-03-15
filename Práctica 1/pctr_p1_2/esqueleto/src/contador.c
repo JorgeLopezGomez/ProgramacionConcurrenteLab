@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
   }
 
   char *linea = argv[1];            // Linea a procesar
-  int numero_linea = atoi(argv[2]); // Numero de linea a procesar (convertido a entero)
+  int numero_linea = atoi(argv[2]); // Numero de linea a procesar y con la funcion atoi lo convertimos la cadena de caracteres a entero
 
   contar(linea, numero_linea); // Llamar a la funcion contar
 
@@ -43,7 +43,7 @@ void contar(char *linea, int numero_linea)
       }
       break; // Salir del switch y continuar con el bucle
     default:
-      dentro_palabra = 1; // Si no es un espacio, tabulador, salto de linea o retorno de carro, se esta dentro de una palabra
+      dentro_palabra = 1; // Si no es un espacio, un tabulador, un salto de linea o un retorno de carro, entonces se esta dentro de una palabra
     }
   } while (*it++); // Incrementar el iterador y comprobar si se ha llegado al final de la linea
 
