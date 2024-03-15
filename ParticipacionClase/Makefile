@@ -7,16 +7,19 @@ CFLAGS := -I$(DIRHEA) -c -Wall -ggdb
 LDLIBS := -lpthread -lrt
 CC := gcc
 
-all : dirs patronFachada
+all: dirs patronFachada test
 
 dirs:
-    mkdir -p $(DIROBJ) $(DIREXE)
+	mkdir -p $(DIROBJ) $(DIREXE)
 
-patronFachada: $(DIROBJ)patronFachada.o
-    $(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
+patronFachada: $(DIROBJ)patronFachada.o 
+	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
 
 $(DIROBJ)%.o: $(DIRSRC)%.c
-    $(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
+
+test:
+	./$(DIREXE)patronFachada 
 
 clean : 
-    rm -rf *~ core $(DIROBJ) $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~
+	rm -rf *~ core $(DIROBJ) $(DIREXE) $(DIRHEA)*~ $(DIRSRC)*~

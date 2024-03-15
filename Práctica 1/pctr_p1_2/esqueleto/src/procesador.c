@@ -10,9 +10,9 @@
 // Funcion principal
 int main(int argc, char *argv[])
 {
-    char line[MAX_LONGITUD_LINEA];    // Linea leida del archivo
+    char linea[MAX_LONGITUD_LINEA];   // Linea leida del archivo
     char patron[MAX_LONGITUD_PATRON]; // Patron a buscar
-    int lineNum = 0;                  // Numero de linea
+    int numero_linea = 0;             // Numero de linea
 
     if (argc != 3) // Comprobar si se pasan los argumentos necesarios para el programa
     {
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;                                                  // Salir con error
     }
 
-    char *filePath = argv[1];                  // Ruta del archivo
+    char *ruta_archivo = argv[1];              // Ruta del archivo
     if (strlen(argv[2]) >= MAX_LONGITUD_LINEA) // Comprobar si el patron es demasiado largo
     {
         fprintf(stderr, "ERROR. El patron es demasiado largo.\n"); // Mensaje de error
@@ -28,24 +28,24 @@ int main(int argc, char *argv[])
     }
     strncpy(patron, argv[2], MAX_LONGITUD_PATRON); // Copiar el patron
 
-    FILE *fp = fopen(filePath, "r"); // Abrir el archivo en modo lectura
-    if (fp == NULL)                  // Comprobar si se ha podido abrir el archivo
+    FILE *puntero_archivo = fopen(ruta_archivo, "r"); // Abrir el archivo en modo lectura
+    if (puntero_archivo == NULL)                      // Comprobar si se ha podido abrir el archivo
     {
-        fprintf(stderr, filePath); // Mensaje de error
-        return EXIT_FAILURE;       // Salir con error
+        fprintf(stderr, ruta_archivo); // Mensaje de error
+        return EXIT_FAILURE;           // Salir con error
     }
 
-    while (fgets(line, MAX_LONGITUD_LINEA, fp) != NULL) // Lee una linea del archivo
+    while (fgets(linea, MAX_LONGITUD_LINEA, puntero_archivo) != NULL) // Lee una linea del archivo
     {
-        lineNum++; // Incrementa el contador de lineas
+        numero_linea++; // Incrementa el contador de lineas
 
-        if (strstr(line, patron) != NULL) // Comprobar si el patron se encuentra en la linea
+        if (strstr(linea, patron) != NULL) // Comprobar si el patron se encuentra en la linea
         {
-            printf("[PROCESADOR %d] Patron '%s' encontrado en la línea %d\n", getpid(), patron, lineNum); // Imprimir el resultado
+            printf("[PROCESADOR %d] Patron '%s' encontrado en la linea %d\n", getpid(), patron, numero_linea); // Imprimir el resultado
         }
     }
 
-    fclose(fp); // Cerrar el archivo
+    fclose(puntero_archivo); // Cerrar el archivo
 
     return EXIT_SUCCESS; // Salir con exito
 }

@@ -198,13 +198,13 @@ void imprimir(TLista *pLista)
 int longitud(TLista *pLista)
 {
   TNodo *pAux = pLista->pPrimero; // Creamos un puntero auxiliar
-  int longitud = 0;               // Creamos una variable para almacenar la longitud
+  int longitudLista = 0;               // Creamos una variable para almacenar la longitud
 
   while (pAux != NULL) // Recorremos la lista hasta llegar al final de la lista (NULL) y contamos los nodos que hay en la lista (longitud)
   {
-    longitud++;              // Aumentamos la longitud
+    longitudLista++;              // Aumentamos la longitud
     pAux = pAux->pSiguiente; // Asignamos el siguiente nodo al nodo actual
   }
 
-  return longitud; // Devolvemos la longitud
+  return longitudLista; // Devolvemos la longitud
 }
