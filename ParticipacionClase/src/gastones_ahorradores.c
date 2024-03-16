@@ -105,11 +105,11 @@ void gastones(struct datos_compartidos *datos, int num_retiradas, int cantidad_r
         // Si hay suficiente saldo para retirar la cantidad
         if (datos->saldo_en_euros >= cantidad_retirada)
         {
-            datos->saldo_en_euros -= cantidad_retirada;                                                                // Retira la cantidad de dinero
+            datos->saldo_en_euros -= cantidad_retirada;                                                                  // Retira la cantidad de dinero
             printf("Gastones: Retirada de %d euros. Nuevo saldo: %d euros\n", cantidad_retirada, datos->saldo_en_euros); // Imprime la retirada
         }
         else
-        {                                                                                         // Si no hay suficiente saldo para retirar la cantidad
+        {                                                                                           // Si no hay suficiente saldo para retirar la cantidad
             printf("Gastones: No hay suficiente saldo para retirar %d euros\n", cantidad_retirada); // Imprime que no hay suficiente saldo
         }
         signal_sem(datos->sem_saldo); // Senaliza el semaforo
@@ -121,7 +121,7 @@ void gastones(struct datos_compartidos *datos, int num_retiradas, int cantidad_r
 int main()
 {
     const int NUM_AHORRADORES = 2;     // Numero de ahorradores
-    const int NUM_gastones = 3;          // Numero de gastones
+    const int NUM_GASTONES = 3;        // Numero de gastones
     const int NUM_INGRESOS = 5;        // Numero de ingresos
     const int NUM_RETIRADAS = 4;       // Numero de retiradas
     const int CANTIDAD_INGRESO = 100;  // Cantidad de ingreso
@@ -157,7 +157,7 @@ int main()
     }
 
     // Bucle para crear los procesos gastones
-    for (int i = 0; i < NUM_gastones; i++)
+    for (int i = 0; i < NUM_GASTONES; i++)
     {
         pid_t pid = fork(); // Crea un proceso hijo
 
@@ -165,17 +165,17 @@ int main()
         if (pid == 0)
         {
             gastones(datos, NUM_RETIRADAS, CANTIDAD_RETIRADA); // Realiza las retiradas
-            exit(EXIT_SUCCESS);                              // Termina el proceso hijo
+            exit(EXIT_SUCCESS);                                // Termina el proceso hijo
         }
         else if (pid < 0)
-        {                                                        // Si hay un error al crear el proceso gastones
+        {                                                          // Si hay un error al crear el proceso gastones
             fprintf(stderr, "Error al crear el proceso gastones"); // Se imprime un mensaje de error
-            exit(EXIT_FAILURE);                                  // Se termina el programa
+            exit(EXIT_FAILURE);                                    // Se termina el programa
         }
     }
 
     // Bucle para esperar a que terminen los procesos ahorradores y gastones
-    for (int i = 0; i < NUM_AHORRADORES + NUM_gastones; i++)
+    for (int i = 0; i < NUM_AHORRADORES + NUM_GASTONES; i++)
     {
         wait(NULL); // Espera a que termine un proceso hijo
     }
