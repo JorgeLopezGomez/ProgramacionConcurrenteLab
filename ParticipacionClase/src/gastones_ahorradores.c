@@ -94,7 +94,7 @@ void ahorrador(struct datos_compartidos *datos, int num_ingresos, int cantidad_i
 }
 
 // Funcion para retirar dinero
-void gastos(struct datos_compartidos *datos, int num_retiradas, int cantidad_retirada)
+void gastones(struct datos_compartidos *datos, int num_retiradas, int cantidad_retirada)
 {
 
     // Bucle para realizar las retiradas
@@ -106,11 +106,11 @@ void gastos(struct datos_compartidos *datos, int num_retiradas, int cantidad_ret
         if (datos->saldo_en_euros >= cantidad_retirada)
         {
             datos->saldo_en_euros -= cantidad_retirada;                                                                // Retira la cantidad de dinero
-            printf("Gastos: Retirada de %d euros. Nuevo saldo: %d euros\n", cantidad_retirada, datos->saldo_en_euros); // Imprime la retirada
+            printf("Gastones: Retirada de %d euros. Nuevo saldo: %d euros\n", cantidad_retirada, datos->saldo_en_euros); // Imprime la retirada
         }
         else
         {                                                                                         // Si no hay suficiente saldo para retirar la cantidad
-            printf("Gastos: No hay suficiente saldo para retirar %d euros\n", cantidad_retirada); // Imprime que no hay suficiente saldo
+            printf("Gastones: No hay suficiente saldo para retirar %d euros\n", cantidad_retirada); // Imprime que no hay suficiente saldo
         }
         signal_sem(datos->sem_saldo); // Senaliza el semaforo
         usleep(150000);               // Espera 150 milisegundos
@@ -121,7 +121,7 @@ void gastos(struct datos_compartidos *datos, int num_retiradas, int cantidad_ret
 int main()
 {
     const int NUM_AHORRADORES = 2;     // Numero de ahorradores
-    const int NUM_GASTOS = 3;          // Numero de gastos
+    const int NUM_gastones = 3;          // Numero de gastones
     const int NUM_INGRESOS = 5;        // Numero de ingresos
     const int NUM_RETIRADAS = 4;       // Numero de retiradas
     const int CANTIDAD_INGRESO = 100;  // Cantidad de ingreso
@@ -156,26 +156,26 @@ int main()
         }
     }
 
-    // Bucle para crear los procesos gastos
-    for (int i = 0; i < NUM_GASTOS; i++)
+    // Bucle para crear los procesos gastones
+    for (int i = 0; i < NUM_gastones; i++)
     {
         pid_t pid = fork(); // Crea un proceso hijo
 
         // Si el proceso es el proceso hijo
         if (pid == 0)
         {
-            gastos(datos, NUM_RETIRADAS, CANTIDAD_RETIRADA); // Realiza las retiradas
+            gastones(datos, NUM_RETIRADAS, CANTIDAD_RETIRADA); // Realiza las retiradas
             exit(EXIT_SUCCESS);                              // Termina el proceso hijo
         }
         else if (pid < 0)
-        {                                                        // Si hay un error al crear el proceso gastos
-            fprintf(stderr, "Error al crear el proceso gastos"); // Se imprime un mensaje de error
+        {                                                        // Si hay un error al crear el proceso gastones
+            fprintf(stderr, "Error al crear el proceso gastones"); // Se imprime un mensaje de error
             exit(EXIT_FAILURE);                                  // Se termina el programa
         }
     }
 
-    // Bucle para esperar a que terminen los procesos ahorradores y gastos
-    for (int i = 0; i < NUM_AHORRADORES + NUM_GASTOS; i++)
+    // Bucle para esperar a que terminen los procesos ahorradores y gastones
+    for (int i = 0; i < NUM_AHORRADORES + NUM_gastones; i++)
     {
         wait(NULL); // Espera a que termine un proceso hijo
     }
