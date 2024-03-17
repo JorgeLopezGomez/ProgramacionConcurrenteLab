@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
     FILE *puntero_archivo = fopen(ruta_archivo, "r"); // Abrir el archivo en modo lectura
     if (puntero_archivo == NULL)                      // Comprobar si se ha podido abrir el archivo
     {
-        fprintf(stderr, ruta_archivo); // Mensaje de error
-        return EXIT_FAILURE;           // Salir con error
+        fprintf(stderr, "Error: No se pudo abrir el archivo en la ruta: %s\n", ruta_archivo); // Mensaje de error
+        return EXIT_FAILURE;                                                                  // Salir con error
     }
 
     while (fgets(linea, MAX_LONGITUD_LINEA, puntero_archivo) != NULL) // Lee una linea del archivo
