@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     if (puntero_archivo == NULL)                      // Comprobar si se ha podido abrir el archivo
     {
         fprintf(stderr, "Error: no se pudo abrir el archivo %s\n", ruta_archivo); // Mensaje de error
-        return EXIT_FAILURE;           // Salir con error
+        return EXIT_FAILURE;                                                      // Salir con error
     }
 
     while (fgets(linea, MAX_LONGITUD_LINEA, puntero_archivo) != NULL) // Lee una linea del archivo
