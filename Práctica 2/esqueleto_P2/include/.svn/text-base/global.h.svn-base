@@ -1,0 +1,4 @@
+#define FILOSOFOS 5
+#define MAX_TIME_COMER 5
+#define MAX_TIME_PENSAR 5
+
