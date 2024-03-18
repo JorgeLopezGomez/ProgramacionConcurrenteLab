@@ -1,0 +1,16 @@
+Autores del ejercicio de participacion en clase de PCTR: 
+
+- Jorge Lopez Gomez
+- Oussama Bolbaroud 
+- Alberto Corroto Fernandez 
+
+Intrucciones del ejercicio de clase de PCTR: 
+
+Primero de todo, tendremos que ejecutar el makeFile con el siguiente comando, para ello, 
+es muy importante estar en el directorio /ParticipacionClase:
+
+make clean && make 
+
+Finalmente, una vez hayamos ejecutado el comando anterior, procedemos a ejecutar el ejercicio con el siguiente comando: 
+
+./exec/gastones_ahorradores
