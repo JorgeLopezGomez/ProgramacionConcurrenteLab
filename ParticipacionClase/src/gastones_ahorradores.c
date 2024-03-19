@@ -31,7 +31,8 @@ sem_t *crear_sem(char *nombre, int valor_inicial)
 // Funcion para decrementar el semáforo
 void wait_sem(sem_t *sem)
 {
-    while (sem_wait(sem) != 0); // Para decrementar el valor al que apunta sem
+    while (sem_wait(sem) != 0)
+        ; // Para decrementar el valor al que apunta sem
 }
 // Funciones para incrementar sem cada vez que le llamamos
 void signal_sem(sem_t *sem)
@@ -79,7 +80,7 @@ void ahorrador(struct datos_compartidos *datos, int num_ingresos, int cantidad_i
         // Con cada ingremos incrementamos el saldo
         datos->saldo_en_euros += cantidad_ingreso;
         // Imprime el ingreso
-        printf("[Ahorrador %d]: Ingreso de %d euros. Nuevo saldo: %d euros\n", pid, cantidad_ingreso, datos->saldo_en_euros);
+        printf("[Ahorrador %d]: Ingreso de %d euros. Nuevo saldo: %d euros\n", getpid(), cantidad_ingreso, datos->saldo_en_euros);
         // Desbloquea la sección crítica aumentando el valor al que apunta sem
         signal_sem(datos->sem_saldo);
         // Esperamos un 0,1 segundo
@@ -102,16 +103,16 @@ void gastones(struct datos_compartidos *datos, int num_retiradas, int cantidad_r
         {
             // Retiramos la cantidad que queremos
             datos->saldo_en_euros -= cantidad_retirada;
-            printf("[Gaston %d]: Retirada de %d euros. Nuevo saldo: %d euros\n", pid, cantidad_retirada, datos->saldo_en_euros);
+            printf("[Gaston %d]: Retirada de %d euros. Nuevo saldo: %d euros\n", getpid(), cantidad_retirada, datos->saldo_en_euros);
         }
         else
         {
             // Si no hay suficiente saldo imprimimos que no hay suficiente saldo
+            printf("[Gaston %d]: No hay suficiente saldo para retirar %d euros :( \n", getpid(), cantidad_retirada);
         }
-        printf("[Gaston %d]: No hay suficiente saldo para retirar %d euros :( \n", pid, cantidad_retirada);
+        signal_sem(datos->sem_saldo); // Incrementamos el semáforo
+        usleep(150000);               // Espera 0.15 segundos
     }
-    signal_sem(datos->sem_saldo); // Incrementamos el semáforo
-    usleep(150000);              // Espera 0.15 segundos
 }
 
 int main()
