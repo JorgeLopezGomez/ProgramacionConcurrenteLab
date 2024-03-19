@@ -28,27 +28,15 @@ sem_t *crear_sem(char *nombre, int valor_inicial)
     return sem;
 }
 
-// Funciones para esperar y senalizar un semaforo
+// Funcion para decrementar el semáforo
 void wait_sem(sem_t *sem)
 {
-
-    // Si hay un error al esperar el semaforo
-    if (sem_wait(sem) < 0)
-    {
-        fprintf(stderr, "sem_wait"); // Se imprime un mensaje de error
-        exit(EXIT_FAILURE);          // Se termina el programa
-    }
+    while (sem_wait(sem) != 0); // Para decrementar el valor al que apunta sem
 }
-// Funciones para esperar y senalizar un semaforo
+// Funciones para incrementar sem cada vez que le llamamos
 void signal_sem(sem_t *sem)
 {
-
-    // Si hay un error al esperar el semaforo
-    if (sem_post(sem) < 0)
-    {
-        fprintf(stderr, "sem_post"); // Se imprime un mensaje de error
-        exit(EXIT_FAILURE);          // Se termina el programa
-    }
+    sem_post(sem); // Para incrementar el valor al que apunta sem
 }
 
 // Funcion para destruir un semaforo
@@ -58,8 +46,8 @@ void destruir_sem(char *nombre)
     // Si hay un error al destruir el semaforo
     if (sem_unlink(nombre) < 0)
     {
-        fprintf(stderr, "sem_unlink"); // Se imprime un mensaje de error
-        exit(EXIT_FAILURE);            // Se termina el programa
+        fprintf(stderr, "Error al destruir el semáforo"); // Se imprime un mensaje de error
+        exit(EXIT_FAILURE);                               // Se termina el programa
     }
 }
 
@@ -75,49 +63,57 @@ void *crear_memoria_compartida(size_t tamano)
 void inicializar_variables_compartidas(struct datos_compartidos *datos)
 {
     datos->saldo_en_euros = 0;                    // Inicializa el saldo en euros a 0
-    datos->sem_saldo = crear_sem("sem_saldo", 1); // Crea el semaforo para controlar el acceso a la variable saldo_en_euros
+    datos->sem_saldo = crear_sem("sem_saldo", 1); // Crea el semaforo para controlar el acceso a la variable saldo_en_euros y lo inicializaremos a 1
+    // para que trabaje al estilo mutex
 }
 
-// Funcion para ahorrar dinero
-void ahorrador(struct datos_compartidos *datos, int num_ingresos, int cantidad_ingreso)
+// Funcion para los ahorradores, que buscarán ahorrar a toda costa
+void ahorrador(struct datos_compartidos *datos, int num_ingresos, int cantidad_ingreso, pid_t pid)
 {
 
     // Bucle para realizar los ingresos
     for (int i = 0; i < num_ingresos; i++)
     {
-        wait_sem(datos->sem_saldo);                                                                                 // Espera el semaforo
-        datos->saldo_en_euros += cantidad_ingreso;                                                                  // Ingresa la cantidad de dinero
-        printf("Ahorrador: Ingreso de %d euros. Nuevo saldo: %d euros\n", cantidad_ingreso, datos->saldo_en_euros); // Imprime el ingreso
-        signal_sem(datos->sem_saldo);                                                                               // Senaliza el semaforo
-        usleep(100000);                                                                                             // Espera 100 milisegundos
+        // Accedemos a sección crítica y decrementamos el valor de sem saldo
+        wait_sem(datos->sem_saldo);
+        // Con cada ingremos incrementamos el saldo
+        datos->saldo_en_euros += cantidad_ingreso;
+        // Imprime el ingreso
+        printf("[Ahorrador %d]: Ingreso de %d euros. Nuevo saldo: %d euros\n", pid, cantidad_ingreso, datos->saldo_en_euros);
+        // Desbloquea la sección crítica aumentando el valor al que apunta sem
+        signal_sem(datos->sem_saldo);
+        // Esperamos un 0,1 segundo
+        usleep(100000);
     }
 }
 
-// Funcion para retirar dinero
-void gastones(struct datos_compartidos *datos, int num_retiradas, int cantidad_retirada)
+// Funcion para los gastones, que pretenderán gastar a toda costa
+void gastones(struct datos_compartidos *datos, int num_retiradas, int cantidad_retirada, pid_t pid)
 {
 
     // Bucle para realizar las retiradas
     for (int i = 0; i < num_retiradas; i++)
     {
+        // Accedemos a sección crítica y decrementamos el valor de sem saldo
         wait_sem(datos->sem_saldo); // Espera el semaforo
 
         // Si hay suficiente saldo para retirar la cantidad
         if (datos->saldo_en_euros >= cantidad_retirada)
         {
-            datos->saldo_en_euros -= cantidad_retirada;                                                                  // Retira la cantidad de dinero
-            printf("Gastones: Retirada de %d euros. Nuevo saldo: %d euros\n", cantidad_retirada, datos->saldo_en_euros); // Imprime la retirada
+            // Retiramos la cantidad que queremos
+            datos->saldo_en_euros -= cantidad_retirada;
+            printf("[Gaston %d]: Retirada de %d euros. Nuevo saldo: %d euros\n", pid, cantidad_retirada, datos->saldo_en_euros);
         }
         else
-        {                                                                                           // Si no hay suficiente saldo para retirar la cantidad
-            printf("Gastones: No hay suficiente saldo para retirar %d euros\n", cantidad_retirada); // Imprime que no hay suficiente saldo
+        {
+            // Si no hay suficiente saldo imprimimos que no hay suficiente saldo
         }
-        signal_sem(datos->sem_saldo); // Senaliza el semaforo
-        usleep(150000);               // Espera 150 milisegundos
+        printf("[Gaston %d]: No hay suficiente saldo para retirar %d euros :( \n", pid, cantidad_retirada);
     }
+    signal_sem(datos->sem_saldo); // Incrementamos el semáforo
+    usleep(150000);              // Espera 0.15 segundos
 }
 
-// Funcion principal
 int main()
 {
     const int NUM_AHORRADORES = 2;     // Numero de ahorradores
@@ -127,7 +123,8 @@ int main()
     const int CANTIDAD_INGRESO = 100;  // Cantidad de ingreso
     const int CANTIDAD_RETIRADA = 150; // Cantidad de retirada
 
-    struct datos_compartidos *datos = crear_memoria_compartida(sizeof(struct datos_compartidos)); // Crea la memoria compartida para los datos compartidos
+    // Crea la memoria compartida con tamaño de datos_compartidos
+    struct datos_compartidos *datos = crear_memoria_compartida(sizeof(struct datos_compartidos));
 
     // Si hay un error al crear la memoria compartida
     if (datos == NULL)
@@ -146,8 +143,8 @@ int main()
         // Si el proceso es el proceso hijo
         if (pid == 0)
         {
-            ahorrador(datos, NUM_INGRESOS, CANTIDAD_INGRESO); // Realiza los ingresos
-            exit(EXIT_SUCCESS);                               // Termina el proceso hijo
+            ahorrador(datos, NUM_INGRESOS, CANTIDAD_INGRESO, pid); // Realiza los ingresos
+            exit(EXIT_SUCCESS);                                    // Termina el proceso hijo
         }
         else if (pid < 0)
         {                                                           // Si hay un error al crear el proceso ahorrador
@@ -164,8 +161,8 @@ int main()
         // Si el proceso es el proceso hijo
         if (pid == 0)
         {
-            gastones(datos, NUM_RETIRADAS, CANTIDAD_RETIRADA); // Realiza las retiradas
-            exit(EXIT_SUCCESS);                                // Termina el proceso hijo
+            gastones(datos, NUM_RETIRADAS, CANTIDAD_RETIRADA, pid); // Realiza las retiradas
+            exit(EXIT_SUCCESS);                                     // Termina el proceso hijo
         }
         else if (pid < 0)
         {                                                          // Si hay un error al crear el proceso gastones
@@ -177,11 +174,11 @@ int main()
     // Bucle para esperar a que terminen los procesos ahorradores y gastones
     for (int i = 0; i < NUM_AHORRADORES + NUM_GASTONES; i++)
     {
-        wait(NULL); // Espera a que termine un proceso hijo
+        wait(NULL); // Espera a que termine un proceso hijo, da igual quien sea y el orden de fin
     }
 
     destruir_sem("sem_saldo");                       // Destruye el semaforo
     munmap(datos, sizeof(struct datos_compartidos)); // Libera la memoria compartida
 
-    return 0; // Termina el programa
+    return 0; // Termina el programa con éxito :)
 }
