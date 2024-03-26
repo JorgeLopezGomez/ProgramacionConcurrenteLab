@@ -155,15 +155,16 @@ void crear_procesos(int numPistas, int numAviones)
   {
     lanzar_proceso_pista(i); // Lanzar un proceso de pista
   }
+  printf("[MANAGER] %d pistas creadas.\n", g_pistasProcesses); // Mensaje de creacion de procesos de pistas
 
   // Crear procesos de aviones
   for (int i = 0; i < g_avionesProcesses; i++)
   {
     lanzar_proceso_avion(i); // Lanzar un proceso de avion
   }
+  printf("[MANAGER] %d aviones creados.\n", g_avionesProcesses); // Mensaje de creacion de procesos de aviones
 
-  printf("[MANAGER] %d procesos de pistas y %d procesos de aviones creados.\n", g_pistasProcesses, g_avionesProcesses); // Mensaje de creacion de procesos
-  sleep(1);                                                                                                             // Esperar un segundo
+  sleep(1); // Esperar un segundo
 }
 
 // Lanzar un proceso de pista

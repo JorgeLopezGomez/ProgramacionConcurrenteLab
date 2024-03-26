@@ -9,15 +9,13 @@
 // Modulo principal
 int main(int argc,char *argv[]){
 
-	//TODO: Esquema según especificado en la práctica.
-
     // Define variables locales
     pid_t pid = getpid();
     int valorEspera;
 
     // Coge semáforos y memoria compartida
-    sem_t *sem_pistas = get_semaphore(PISTAS);
-    int *num_aviones_en_espera = get_shared_mem(AVIONESESPERA);
+    sem_t *sem_pistas = get_sem(PISTAS);
+    int shm_fd = obtener_var(AVIONESESPERA);
 
     // Se pone en estado de libre incrementando el número de pistas libres
     while(1){
@@ -25,9 +23,10 @@ int main(int argc,char *argv[]){
         // Mensaje de Espera
         printf("Pista [%d] en servicio...\n",pid);
         
-        //TODO: Aquí hay que realizar procesos
-        sem_wait(sem_pistas);
-        valorEspera = --(*num_aviones_en_espera);
+        // Espera a que un avión aterrice
+        wait_sem(sem_pistas);
+        consultar_var(shm_fd, &valorEspera);
+        modificar_var(shm_fd, --valorEspera);
 
         // Mensaje de pista ocupada
         printf("Pista [%d] ocupada... \n",pid);
@@ -36,7 +35,8 @@ int main(int argc,char *argv[]){
         // Espera en entre 30..60 segundos
         sleep(rand() % 31 + 30);
         
-        sem_post(sem_pistas);
+        // Libera la pista
+        signal_sem(sem_pistas);
     }
 
     return EXIT_SUCCESS;
