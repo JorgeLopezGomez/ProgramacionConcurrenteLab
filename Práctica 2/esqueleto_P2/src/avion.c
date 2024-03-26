@@ -11,23 +11,26 @@ int main(int argc,char *argv[]){
 
     // Define variables locales
     pid_t pid = getpid();
-    int valorEspera;
+    srand(pid);
+    int valorEspera = 0;
 
     // Coge semáforos y memoria compartida
     sem_t *sem_pistas = get_sem(PISTAS);
     sem_t *sem_aviones = get_sem(AVIONES);
+    sem_t *sem_mutex = get_sem(MUTEXESPERA);
     int shm_fd = obtener_var(AVIONESESPERA);
 
     // Espera en entre 30..60 segundos
     printf("Avion[%d] en camino al aeropuerto\n",pid);
-    sleep(rand() % 31 + 30);
+    //sleep(rand() % 31 + 30);
+    sleep(rand() % 1 + 5);
 
     // Aumenta los aviones en espera
-    wait_sem(sem_aviones);
+    wait_sem(sem_mutex);
     consultar_var(shm_fd, &valorEspera);
     modificar_var(shm_fd, ++valorEspera);
     printf("Nº de Aviones en espera: %d\n",valorEspera);
-    signal_sem(sem_aviones);
+    signal_sem(sem_mutex);
 
     // Espera una pista libre
     printf("Avion[%d] esperando pista libre...\n",pid);
@@ -37,11 +40,12 @@ int main(int argc,char *argv[]){
     printf("Avion[%d] comenzando aterrizaje...\n",pid);
 
     // Espera de 60 segundos
-    sleep(60);
+    //sleep(60);
+    sleep(25);
     printf("Avion[%d] aparcado...\n",pid);
 
     // Libera la pista
-    signal_sem(sem_pistas);
+    signal_sem(sem_aviones);
 
     return EXIT_SUCCESS;
 }

@@ -98,28 +98,9 @@ void instalar_manejador_senhal()
 // Manejador de senhal
 void manejador_senhal(int sign)
 {
-  // Forzar la finalización de todos los procesos avión
-  for (int i = 0; i < g_avionesProcesses; i++)
-  {
-    if (g_process_aviones_table[i].pid != 0)
-    {
-      kill(g_process_aviones_table[i].pid, SIGKILL);
-    }
-  }
-
-  // Forzar la finalización de todos los procesos pista
-  for (int i = 0; i < g_pistasProcesses; i++)
-  {
-    if (g_process_pistas_table[i].pid != 0)
-    {
-      kill(g_process_pistas_table[i].pid, SIGKILL);
-    }
-  }
-
-  // Liberar los recursos
-  liberar_recursos();
-
   printf("\n[MANAGER] Terminacion del programa (Ctrl + C).\n"); // Mensaje de terminacion
+  terminar_procesos();                                          // Terminar los procesos
+  liberar_recursos();                                           // Liberar los recursos
   exit(EXIT_SUCCESS);                                           // Salir con exito
 }
 
@@ -219,9 +200,10 @@ void lanzar_proceso_avion(const int indice_tabla)
 void esperar_procesos()
 {
   int i;
+  int nProcesos = g_pistasProcesses;
   pid_t pid; // PID del proceso
 
-  while (g_pistasProcesses > 0 || g_avionesProcesses > 0) // Mientras haya procesos en ejecucion
+  while (nProcesos > 0) // Mientras haya procesos en ejecucion
   {
     pid = wait(NULL); // Esperar a que termine un proceso
 
@@ -229,21 +211,10 @@ void esperar_procesos()
     {
       if (pid == g_process_pistas_table[i].pid) // Si el PID del proceso coincide con el PID de la tabla de procesos
       {
-        printf("[MANAGER] Proceso pista %s terminado [%d]...\n", g_process_pistas_table[i].clase, g_process_pistas_table[i].pid); // Mensaje de terminacion
+        printf("[MANAGER] Proceso %s terminado [%d]...\n", g_process_pistas_table[i].clase, g_process_pistas_table[i].pid); // Mensaje de terminacion
         g_process_pistas_table[i].pid = 0;                                                                                        // Reiniciar el PID del proceso
         g_pistasProcesses--;                                                                                                      // Decrementar el numero de procesos
         break;                                                                                                                    // Salir del bucle
-      }
-    }
-
-    for (i = 0; i < g_avionesProcesses; i++) // Recorrer la tabla de procesos de aviones
-    {
-      if (pid == g_process_aviones_table[i].pid) // Si el PID del proceso coincide con el PID de la tabla de procesos
-      {
-        printf("[MANAGER] Proceso avion %s terminado [%d]...\n", g_process_aviones_table[i].clase, g_process_aviones_table[i].pid); // Mensaje de terminacion
-        g_process_aviones_table[i].pid = 0;                                                                                         // Reiniciar el PID del proceso
-        g_avionesProcesses--;                                                                                                       // Decrementar el numero de procesos
-        break;                                                                                                                      // Salir del bucle
       }
     }
   }
@@ -252,33 +223,10 @@ void esperar_procesos()
 // Terminar los procesos
 void terminar_procesos(void)
 {
-  int i; // Indice de la tabla de procesos
-
   printf("\n----- [MANAGER] Terminar con los procesos hijos ejecutándose ----- \n"); // Mensaje de terminacion
 
-  for (i = 0; i < g_pistasProcesses; i++) // Recorrer la tabla de procesos de pistas
-  {
-    if (g_process_pistas_table[i].pid != 0) // Si el PID del proceso no es 0
-    {
-      printf("[MANAGER] Terminando proceso pista %s [%d]...\n", g_process_pistas_table[i].clase, g_process_pistas_table[i].pid); // Mensaje de terminacion
-      if (kill(g_process_pistas_table[i].pid, SIGINT) == -1)                                                                     // Enviar la señal SIGINT al proceso
-      {
-        fprintf(stderr, "[MANAGER] Error al usar kill() en proceso pista %d: %s.\n", g_process_pistas_table[i].pid, strerror(errno)); // Mensaje de error
-      }
-    }
-  }
-
-  for (i = 0; i < g_avionesProcesses; i++) // Recorrer la tabla de procesos de aviones
-  {
-    if (g_process_aviones_table[i].pid != 0) // Si el PID del proceso no es 0
-    {
-      printf("[MANAGER] Terminando proceso avion %s [%d]...\n", g_process_aviones_table[i].clase, g_process_aviones_table[i].pid); // Mensaje de terminacion
-      if (kill(g_process_aviones_table[i].pid, SIGINT) == -1)                                                                      // Enviar la señal SIGINT al proceso
-      {
-        fprintf(stderr, "[MANAGER] Error al usar kill() en proceso avion %d: %s.\n", g_process_aviones_table[i].pid, strerror(errno)); // Mensaje de error
-      }
-    }
-  }
+  terminar_procesos_especificos(g_process_pistas_table, g_pistasProcesses);   // Terminar los procesos de pistas
+  terminar_procesos_especificos(g_process_aviones_table, g_avionesProcesses); // Terminar los procesos de aviones
 }
 
 // Terminar procesos específicos
@@ -288,12 +236,12 @@ void terminar_procesos_especificos(struct TProcess_t *process_table, int process
 
   printf("\n----- [MANAGER] Terminar con los procesos hijos específicos ejecutándose ----- \n"); // Mensaje de terminacion
 
-  for (i = 0; i < process_num; i++)                                                 // Recorrer la tabla de procesos
+  for (i = 0; i < process_num; i++) // Recorrer la tabla de procesos
   {
     if (process_table[i].pid != 0) // Si el PID del proceso no es 0
     {
       printf("[MANAGER] Terminando proceso %s [%d]...\n", process_table[i].clase, process_table[i].pid); // Mensaje de terminacion
-      if (kill(process_table[i].pid, SIGINT) == -1)                                                        // Enviar la señal SIGINT al proceso
+      if (kill(process_table[i].pid, SIGINT) == -1)                                                      // Enviar la señal SIGINT al proceso
       {
         fprintf(stderr, "[MANAGER] Error al usar kill() en proceso %d: %s.\n", process_table[i].pid, strerror(errno)); // Mensaje de error
       }
