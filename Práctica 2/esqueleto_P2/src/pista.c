@@ -41,8 +41,7 @@ int main(int argc, char *argv[])
         printf("Nº de Aviones en espera: %d\n", valorEspera);
 
         // Espera en entre 30..60 segundos
-        // sleep(rand() % 31 + 30);
-        sleep(rand() % 1 + 5);
+        sleep(rand() % 31 + 30);
     }
 
     return EXIT_SUCCESS;

@@ -212,9 +212,9 @@ void esperar_procesos()
       if (pid == g_process_pistas_table[i].pid) // Si el PID del proceso coincide con el PID de la tabla de procesos
       {
         printf("[MANAGER] Proceso %s terminado [%d]...\n", g_process_pistas_table[i].clase, g_process_pistas_table[i].pid); // Mensaje de terminacion
-        g_process_pistas_table[i].pid = 0;                                                                                        // Reiniciar el PID del proceso
-        g_pistasProcesses--;                                                                                                      // Decrementar el numero de procesos
-        break;                                                                                                                    // Salir del bucle
+        g_process_pistas_table[i].pid = 0;                                                                                  // Reiniciar el PID del proceso
+        g_pistasProcesses--;                                                                                                // Decrementar el numero de procesos
+        break;                                                                                                              // Salir del bucle
       }
     }
   }
