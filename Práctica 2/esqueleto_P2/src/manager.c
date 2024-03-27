@@ -98,10 +98,11 @@ void instalar_manejador_senhal()
 // Manejador de senhal
 void manejador_senhal(int sign)
 {
-  printf("\n[MANAGER] Terminacion del programa (Ctrl + C).\n"); // Mensaje de terminacion
-  terminar_procesos();                                          // Terminar los procesos
-  liberar_recursos();                                           // Liberar los recursos
-  exit(EXIT_SUCCESS);                                           // Salir con exito
+  printf("\n[MANAGER] Terminacion del programa (Ctrl + C).\n");                      // Mensaje de terminacion
+  terminar_procesos();                                                               // Terminar los procesos
+  liberar_recursos();                                                                // Liberar los recursos
+  printf("\n[MANAGER] Terminacion del programa (todos los procesos terminados).\n"); // Mensaje de terminacion
+  exit(EXIT_SUCCESS);                                                                // Salir con exito
 }
 
 // Iniciar la tabla de procesos
@@ -200,21 +201,21 @@ void lanzar_proceso_avion(const int indice_tabla)
 void esperar_procesos()
 {
   int i;
-  int nProcesos = g_pistasProcesses;
+  int nProcesos = g_avionesProcesses; // Cambiado a aviones
   pid_t pid; // PID del proceso
 
   while (nProcesos > 0) // Mientras haya procesos en ejecucion
   {
     pid = wait(NULL); // Esperar a que termine un proceso
+    nProcesos--; // Decrementar el numero de procesos
 
-    for (i = 0; i < g_pistasProcesses; i++) // Recorrer la tabla de procesos de pistas
+    for (i = 0; i < g_avionesProcesses; i++) // Recorrer la tabla de procesos de aviones
     {
-      if (pid == g_process_pistas_table[i].pid) // Si el PID del proceso coincide con el PID de la tabla de procesos
+      if (pid == g_process_aviones_table[i].pid) // Si el PID del proceso coincide con el PID de la tabla de procesos
       {
-        printf("[MANAGER] Proceso %s terminado [%d]...\n", g_process_pistas_table[i].clase, g_process_pistas_table[i].pid); // Mensaje de terminacion
-        g_process_pistas_table[i].pid = 0;                                                                                  // Reiniciar el PID del proceso
-        g_pistasProcesses--;                                                                                                // Decrementar el numero de procesos
-        break;                                                                                                              // Salir del bucle
+        printf("[MANAGER] Proceso %s terminado [%d]...\n", g_process_aviones_table[i].clase, g_process_aviones_table[i].pid); // Mensaje de terminacion
+        g_process_aviones_table[i].pid = 0;                                                                                  // Reiniciar el PID del proceso
+        break;                                                                                                               // Salir del bucle
       }
     }
   }
@@ -223,18 +224,18 @@ void esperar_procesos()
 // Terminar los procesos
 void terminar_procesos(void)
 {
-  printf("\n----- [MANAGER] Terminar con los procesos hijos ejecutándose ----- \n"); // Mensaje de terminacion
+  printf("\n----- [MANAGER] Terminar con cualquier proceso pendiente ejecutándose -----\n"); // Mensaje de terminacion
 
-  terminar_procesos_especificos(g_process_pistas_table, g_pistasProcesses);   // Terminar los procesos de pistas
   terminar_procesos_especificos(g_process_aviones_table, g_avionesProcesses); // Terminar los procesos de aviones
+  terminar_procesos_especificos(g_process_pistas_table, g_pistasProcesses);   // Terminar los procesos de pistas
+
+  printf("\nTodos los aviones en tierra y pistas cerradas\n"); // Mensaje de terminacion
 }
 
 // Terminar procesos específicos
 void terminar_procesos_especificos(struct TProcess_t *process_table, int process_num)
 {
   int i; // Indice de la tabla de procesos
-
-  printf("\n----- [MANAGER] Terminar con los procesos hijos específicos ejecutándose ----- \n"); // Mensaje de terminacion
 
   for (i = 0; i < process_num; i++) // Recorrer la tabla de procesos
   {

@@ -33,15 +33,15 @@ int main(int argc, char *argv[])
     signal_sem(sem_mutex);
 
     // Espera una pista libre
-    printf("Avion[%d] esperando pista libre...\n", pid);
+    printf("Avion [%d] esperando pista libre...\n", pid);
     wait_sem(sem_pistas);
 
     // Comienza el aterrizaje
-    printf("Avion[%d] comenzando aterrizaje...\n", pid);
+    printf("Avion [%d] comenzando aterrizaje...\n", pid);
 
     // Espera de 60 segundos
     sleep(60);
-    printf("Avion[%d] aparcado...\n", pid);
+    printf("Avion [%d] aparcado...\n", pid);
 
     // Libera la pista
     signal_sem(sem_aviones);
