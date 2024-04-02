@@ -72,7 +72,7 @@ void procesar_argumentos(int argc, char *argv[], int *numPistas, int *numAviones
   if (argc != 3) // Comprobar si se pasan los argumentos necesarios para el programa
   {
     fprintf(stderr, "[MANAGER] Error. Usa: ./exec/manager <numPistas> <numAviones>.\n"); // Mensaje de error
-    exit(EXIT_FAILURE);                                                        // Salir con error
+    exit(EXIT_FAILURE);                                                                  // Salir con error
   }
 
   *numPistas = atoi(argv[1]);  // Convertir el primer argumento a un entero
@@ -81,7 +81,7 @@ void procesar_argumentos(int argc, char *argv[], int *numPistas, int *numAviones
   if (*numPistas <= 0 || *numAviones <= 0) // Comprobar si los argumentos son válidos
   {
     fprintf(stderr, "[MANAGER] Error. numPistas y numAviones deben ser mayores que 0.\n"); // Mensaje de error
-    exit(EXIT_FAILURE);                                                          // Salir con error
+    exit(EXIT_FAILURE);                                                                    // Salir con error
   }
 }
 
@@ -253,9 +253,11 @@ void terminar_procesos_especificos(struct TProcess_t *process_table, int process
 // Liberar los recursos
 void liberar_recursos()
 {
-  destruir_sem(MUTEXESPERA);     // Destruir el semaforo de espera
-  destruir_var(AVIONESESPERA);   // Destruir la variable de espera
-  destruir_var(PISTAS);          // Destruir el semaforo de pistas
+  destruir_sem(MUTEXESPERA); // Destruir el semaforo de espera
+  destruir_sem(AVIONES);     // Destruir el semaforo de aviones
+  destruir_sem(PISTAS);      // Destruir el semaforo de pistas
+
+  destruir_var(AVIONESESPERA);   // Eliminar la variable de memoria compartida
   free(g_process_pistas_table);  // Liberar la tabla de procesos de pistas
   free(g_process_aviones_table); // Liberar la tabla de procesos de aviones
 }
