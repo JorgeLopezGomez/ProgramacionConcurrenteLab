@@ -71,7 +71,7 @@ void procesar_argumentos(int argc, char *argv[], int *numPistas, int *numAviones
 {
   if (argc != 3) // Comprobar si se pasan los argumentos necesarios para el programa
   {
-    fprintf(stderr, "Error. Usa: ./exec/manager <numPistas> <numAviones>.\n"); // Mensaje de error
+    fprintf(stderr, "[MANAGER] Error. Usa: ./exec/manager <numPistas> <numAviones>.\n"); // Mensaje de error
     exit(EXIT_FAILURE);                                                        // Salir con error
   }
 
@@ -80,7 +80,7 @@ void procesar_argumentos(int argc, char *argv[], int *numPistas, int *numAviones
 
   if (*numPistas <= 0 || *numAviones <= 0) // Comprobar si los argumentos son válidos
   {
-    fprintf(stderr, "Error. numPistas y numAviones deben ser mayores que 0.\n"); // Mensaje de error
+    fprintf(stderr, "[MANAGER] Error. numPistas y numAviones deben ser mayores que 0.\n"); // Mensaje de error
     exit(EXIT_FAILURE);                                                          // Salir con error
   }
 }
@@ -202,20 +202,20 @@ void esperar_procesos()
 {
   int i;
   int nProcesos = g_avionesProcesses; // Cambiado a aviones
-  pid_t pid; // PID del proceso
+  pid_t pid;                          // PID del proceso
 
   while (nProcesos > 0) // Mientras haya procesos en ejecucion
   {
     pid = wait(NULL); // Esperar a que termine un proceso
-    nProcesos--; // Decrementar el numero de procesos
+    nProcesos--;      // Decrementar el numero de procesos
 
     for (i = 0; i < g_avionesProcesses; i++) // Recorrer la tabla de procesos de aviones
     {
       if (pid == g_process_aviones_table[i].pid) // Si el PID del proceso coincide con el PID de la tabla de procesos
       {
         printf("[MANAGER] Proceso %s terminado [%d]...\n", g_process_aviones_table[i].clase, g_process_aviones_table[i].pid); // Mensaje de terminacion
-        g_process_aviones_table[i].pid = 0;                                                                                  // Reiniciar el PID del proceso
-        break;                                                                                                               // Salir del bucle
+        g_process_aviones_table[i].pid = 0;                                                                                   // Reiniciar el PID del proceso
+        break;                                                                                                                // Salir del bucle
       }
     }
   }
@@ -253,6 +253,9 @@ void terminar_procesos_especificos(struct TProcess_t *process_table, int process
 // Liberar los recursos
 void liberar_recursos()
 {
+  destruir_sem(MUTEXESPERA);     // Destruir el semaforo de espera
+  destruir_var(AVIONESESPERA);   // Destruir la variable de espera
+  destruir_var(PISTAS);          // Destruir el semaforo de pistas
   free(g_process_pistas_table);  // Liberar la tabla de procesos de pistas
   free(g_process_aviones_table); // Liberar la tabla de procesos de aviones
 }

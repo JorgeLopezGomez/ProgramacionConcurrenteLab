@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
         // Espera a que un avión aterrice
         wait_sem(sem_mutex);
         consultar_var(shm_fd, &valorEspera);
-        modificar_var(shm_fd, --valorEspera);
+        valorEspera--;
+        modificar_var(shm_fd, valorEspera);
         signal_sem(sem_mutex);
 
         // Mensaje de pista ocupada

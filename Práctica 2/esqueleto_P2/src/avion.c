@@ -28,13 +28,15 @@ int main(int argc, char *argv[])
     // Aumenta los aviones en espera
     wait_sem(sem_mutex);
     consultar_var(shm_fd, &valorEspera);
-    modificar_var(shm_fd, ++valorEspera);
+    valorEspera++;
+    modificar_var(shm_fd, valorEspera);
     printf("Nº de Aviones en espera: %d\n", valorEspera);
     signal_sem(sem_mutex);
 
     // Espera una pista libre
     printf("Avion [%d] esperando pista libre...\n", pid);
     wait_sem(sem_pistas);
+    signal_sem(sem_aviones);
 
     // Comienza el aterrizaje
     printf("Avion [%d] comenzando aterrizaje...\n", pid);
@@ -42,9 +44,6 @@ int main(int argc, char *argv[])
     // Espera de 60 segundos
     sleep(60);
     printf("Avion [%d] aparcado...\n", pid);
-
-    // Libera la pista
-    signal_sem(sem_aviones);
 
     return EXIT_SUCCESS;
 }
