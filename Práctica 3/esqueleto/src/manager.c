@@ -281,6 +281,7 @@ void terminar_procesos_especificos(struct TProcess_t *process_table, int process
             if (kill(process_table[i].pid, SIGINT) == -1)                                                      // Enviar la señal SIGINT al proceso
             {
                 fprintf(stderr, "[MANAGER] Error al usar kill() en proceso %d: %s.\n", process_table[i].pid, strerror(errno)); // Mensaje de error
+                exit(EXIT_FAILURE);                                                                                            // Salir con error
             }
         }
     }
