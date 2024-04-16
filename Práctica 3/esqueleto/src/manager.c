@@ -230,3 +230,82 @@ void esperar_procesos()
         }
     }
 }
+
+// Terminar los procesos
+void terminar_procesos(void)
+{
+    printf("\n----- [MANAGER] Terminar con cualquier proceso pendiente ejecutándose -----\n"); // Mensaje de terminacion
+
+    terminar_procesos_especificos(g_process_slots_table, g_slotsProcesses);   // Terminar los procesos de slots
+    terminar_procesos_especificos(g_process_pistas_table, g_pistasProcesses); // Terminar los procesos de pistas
+}
+
+// Terminar los procesos especificos
+void terminar_procesos_especificos(struct TProcess_t *process_table, int process_num)
+{
+    int i; // Indice de la tabla de procesos
+
+    for (i = 0; i < process_num; i++) // Recorrer la tabla de procesos
+    {
+        if (process_table[i].pid != 0) // Si el PID del proceso no es 0
+        {
+            printf("[MANAGER] Terminando proceso %s [%d]...\n", process_table[i].clase, process_table[i].pid); // Mensaje de terminacion
+            if (kill(process_table[i].pid, SIGINT) == -1)                                                      // Enviar la señal SIGINT al proceso
+            {
+                fprintf(stderr, "[MANAGER] Error al usar kill() en proceso %d: %s.\n", process_table[i].pid, strerror(errno)); // Mensaje de error
+            }
+        }
+    }
+}
+
+// Liberar recursos
+void liberar_recursos()
+{
+    // Cerrar los buzones
+    if (mq_close(qHandlerAterrizajes) == -1)
+    {
+        fprintf(stderr, "[MANAGER] Error al cerrar el buzon de aterrizajes: %s.\n", strerror(errno)); // Mensaje de error
+    }
+    if (mq_unlink(BUZON_ATERRIZAMIENTOS) == -1)
+    {
+        fprintf(stderr, "[MANAGER] Error al borrar el buzon de aterrizajes: %s.\n", strerror(errno)); // Mensaje de error
+    }
+    if (mq_close(qHandlerPistas) == -1)
+    {
+        fprintf(stderr, "[MANAGER] Error al cerrar el buzon de pistas: %s.\n", strerror(errno)); // Mensaje de error
+    }
+    if (mq_unlink(BUZON_PISTAS) == -1)
+    {
+        fprintf(stderr, "[MANAGER] Error al borrar el buzon de pistas: %s.\n", strerror(errno)); // Mensaje de error
+    }
+    for (int i = 0; i < NUMSLOTS; i++)
+    {
+        if (mq_close(qHandlerSlots[i]) == -1)
+        {
+            fprintf(stderr, "[MANAGER] Error al cerrar el buzon de slots: %s.\n", strerror(errno)); // Mensaje de error
+        }
+        if (mq_unlink(SLOTS[i]) == -1)
+        {
+            fprintf(stderr, "[MANAGER] Error al borrar el buzon de slots: %s.\n", strerror(errno)); // Mensaje de error
+        }
+    }
+    for (int i = 0; i < NUMPISTAS; i++)
+    {
+        if (mq_close(qHandlerPistas[i]) == -1)
+        {
+            fprintf(stderr, "[MANAGER] Error al cerrar el buzon de pistas: %s.\n", strerror(errno)); // Mensaje de error
+        }
+        if (mq_unlink(PISTAS[i]) == -1)
+        {
+            fprintf(stderr, "[MANAGER] Error al borrar el buzon de pistas: %s.\n", strerror(errno)); // Mensaje de error
+        }
+    }
+    // Cerrar los archivos
+    if (fclose(fichero) == EOF)
+    {
+        fprintf(stderr, "[MANAGER] Error al cerrar el fichero: %s.\n", strerror(errno)); // Mensaje de error
+    }
+
+    free(g_process_pistas_table); // Liberar la memoria de la tabla de procesos de pistas
+    free(g_process_slots_table);  // Liberar la memoria de la tabla de procesos de slots
+}
