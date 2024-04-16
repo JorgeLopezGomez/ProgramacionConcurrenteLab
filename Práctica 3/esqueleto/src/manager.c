@@ -76,7 +76,7 @@ void crear_buzones() {
     // Crear buzón para aterrizajes
     mq = mq_open(BUZON_ATERRIZAJES, O_CREAT | O_RDWR, 0644, &attr);
     if (mq == (mqd_t) -1) {
-        perror("mq_open");
+        fprintf(stderr, "[MANAGER] Error al abrir el buzón BUZON_ATERRIZAJES. Detalles: %s\n", strerror(errno));
         exit(1);
     }
     mq_close(mq);
@@ -86,7 +86,7 @@ void crear_buzones() {
         sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i);
         mq = mq_open(buzon_slot, O_CREAT | O_RDWR, 0644, &attr);
         if (mq == (mqd_t) -1) {
-            perror("mq_open");
+            fprintf(stderr, "[MANAGER] Error al abrir el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno));
             exit(1);
         }
         mq_close(mq);
