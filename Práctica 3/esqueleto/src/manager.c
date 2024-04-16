@@ -62,7 +62,8 @@ int main(int argc, char *argv[])
 }
 
 // Crear buzones
-void crear_buzones() {
+void crear_buzones()
+{
     mqd_t mq;
     struct mq_attr attr;
     char buzon_slot[20];
@@ -75,19 +76,24 @@ void crear_buzones() {
 
     // Crear buzón para aterrizajes
     mq = mq_open(BUZON_ATERRIZAJES, O_CREAT | O_RDWR, 0644, &attr);
-    if (mq == (mqd_t) -1) {
+    if (mq == (mqd_t)-1)
+    {
         fprintf(stderr, "[MANAGER] Error al abrir el buzón BUZON_ATERRIZAJES. Detalles: %s\n", strerror(errno));
-        exit(1);
+        liberar_recursos();
+        exit(EXIT_FAILURE);
     }
     mq_close(mq);
 
     // Crear un buzón para cada slot
-    for (int i = 0; i < NUMSLOTS; i++) {
+    for (int i = 0; i < NUMSLOTS; i++)
+    {
         sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i);
         mq = mq_open(buzon_slot, O_CREAT | O_RDWR, 0644, &attr);
-        if (mq == (mqd_t) -1) {
+        if (mq == (mqd_t)-1)
+        {
             fprintf(stderr, "[MANAGER] Error al abrir el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno));
-            exit(1);
+            liberar_recursos();
+            exit(EXIT_FAILURE);
         }
         mq_close(mq);
     }
@@ -122,7 +128,15 @@ void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea)
     if (g_process_pistas_table == NULL)
     {
         fprintf(stderr, "[MANAGER] Error al reservar memoria para la tabla de procesos de pistas: %s\n", strerror(errno)); // Mensaje de error
-        exit(1);                                                                                                           // Salir con error
+        liberar_recursos();                                                                                                // Liberar los recursos
+        exit(EXIT_FAILURE);                                                                                                // Salir con error
+    }
+    else
+    {
+        for (int i = 0; i < n_procesos_telefono; i++)
+        {
+            g_process_pistas_table[i].pid = 0; // Inicializar el PID del proceso en la tabla de procesos
+        }
     }
 
     g_process_slots_table = (struct TProcess_t *)malloc(n_procesos_linea * sizeof(struct TProcess_t)); // Reservar memoria para la tabla de procesos de slots
@@ -131,7 +145,15 @@ void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea)
     if (g_process_slots_table == NULL)
     {
         fprintf(stderr, "[MANAGER] Error al reservar memoria para la tabla de procesos de slots: %s\n", strerror(errno)); // Mensaje de error
-        exit(1);                                                                                                          // Salir con error
+        liberar_recursos();                                                                                               // Liberar los recursos
+        exit(EXIT_FAILURE);                                                                                               // Salir con error
+    }
+    else
+    {
+        for (int i = 0; i < n_procesos_linea; i++)
+        {
+            g_process_slots_table[i].pid = 0; // Inicializar el PID del proceso en la tabla de procesos
+        }
     }
 }
 
@@ -267,28 +289,21 @@ void terminar_procesos_especificos(struct TProcess_t *process_table, int process
 // Liberar recursos
 void liberar_recursos()
 {
-    // Cerrar los buzones
-    if (mq_unlink(BUZON_ATERRIZAJES) == -1) {
+    free(g_process_pistas_table); // Liberar la memoria de la tabla de procesos de pistas
+    free(g_process_slots_table);  // Liberar la memoria de la tabla de procesos de slots
+
+     // Cerrar los buzones
+    if (mq_unlink(BUZON_ATERRIZAJES) == -1)
+    {
         fprintf(stderr, "[MANAGER] Error al eliminar el buzón BUZON_ATERRIZAJES. Detalles: %s\n", strerror(errno));
     }
     for (int i = 0; i < NUMSLOTS; i++)
     {
         char buzon_slot[20];
         sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i);
-        if (mq_unlink(buzon_slot) == -1) {
+        if (mq_unlink(buzon_slot) == -1)
+        {
             fprintf(stderr, "[MANAGER] Error al eliminar el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno));
         }
-    }
-
-    // Liberar la memoria de la tabla de procesos de pistas
-    if (g_process_pistas_table != NULL)
-    {
-        free(g_process_pistas_table);
-    }
-
-    // Liberar la memoria de la tabla de procesos de slots
-    if (g_process_slots_table != NULL)
-    {
-        free(g_process_slots_table);
     }
 }
