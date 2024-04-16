@@ -1,4 +1,3 @@
-
 // CLASES y PATHS
 #define CLASE_PISTA "PISTA"
 #define RUTA_PISTA "./exec/pista"
