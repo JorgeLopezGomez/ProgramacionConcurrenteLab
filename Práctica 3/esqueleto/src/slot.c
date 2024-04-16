@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -31,10 +30,17 @@ int main(int argc, char *argv[])
     sprintf(buzonSlot, "%s", argv[1]);
 
     // TODO
-
-    // Abre la cola de mensajes
+    // Abre la cola de mensajes para slot
     qHandlerSlot = mq_open(buzonSlot, O_RDONLY);
     if (qHandlerSlot == (mqd_t)-1)
+    {
+        fprintf(stderr, "Slot [%d] Error al abrir la cola de mensajes: %s\n", pid, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    // Abre la cola de mensajes para aterrizajes
+    qHandlerAterrizajes = mq_open(argv[2], O_RDONLY);
+    if (qHandlerAterrizajes == (mqd_t)-1)
     {
         fprintf(stderr, "Slot [%d] Error al abrir la cola de mensajes: %s\n", pid, strerror(errno));
         exit(EXIT_FAILURE);
@@ -60,8 +66,9 @@ int main(int argc, char *argv[])
         printf("Slot [%d] recibido avión (%s)...\n", pid, buffer);
     }
 
-    // Cierra la cola de mensajes
+    // Cierra las colas de mensajes
     mq_close(qHandlerSlot);
+    mq_close(qHandlerAterrizajes);
 
     return 0;
 }
