@@ -61,29 +61,35 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void crear_buzones()
-{
+// Crear buzones
+void crear_buzones() {
+    mqd_t mq;
     struct mq_attr attr;
+    char buzon_slot[20];
+
+    // Atributos del buzón
     attr.mq_flags = 0;
     attr.mq_maxmsg = 10;
-    attr.mq_msgsize = sizeof(struct TMessage_t);
+    attr.mq_msgsize = TAMANO_MENSAJES;
     attr.mq_curmsgs = 0;
 
-    qHandlerAterrizajes = mq_open(ATERRIZAJES, O_CREAT | O_RDWR, 0666, &attr);
-    if (qHandlerAterrizajes == -1)
-    {
-        fprintf(stderr, "Error al crear el buzon de aterrizajes: %s\n", strerror(errno));
+    // Crear buzón para aterrizajes
+    mq = mq_open(BUZON_ATERRIZAJES, O_CREAT | O_RDWR, 0644, &attr);
+    if (mq == (mqd_t) -1) {
+        perror("mq_open");
         exit(1);
     }
+    mq_close(mq);
 
-    for (int i = 0; i < NUMSLOTS; i++)
-    {
-        qHandlerSlots[i] = mq_open(SLOTS[i], O_CREAT | O_RDWR, 0666, &attr);
-        if (qHandlerSlots[i] == -1)
-        {
-            fprintf(stderr, "Error al crear el buzon de slots: %s\n", strerror(errno));
+    // Crear un buzón para cada slot
+    for (int i = 0; i < NUMSLOTS; i++) {
+        sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i);
+        mq = mq_open(buzon_slot, O_CREAT | O_RDWR, 0644, &attr);
+        if (mq == (mqd_t) -1) {
+            perror("mq_open");
             exit(1);
         }
+        mq_close(mq);
     }
 }
 
