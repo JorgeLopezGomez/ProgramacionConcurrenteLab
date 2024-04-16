@@ -61,10 +61,8 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-// TODO
 void crear_buzones()
 {
-    // TODO
     struct mq_attr attr;
     attr.mq_flags = 0;
     attr.mq_maxmsg = 10;
@@ -112,42 +110,123 @@ void manejador_senhal(int sign)
 // Iniciar tabla de procesos
 void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea)
 {
-    // TODO
-    g_process_pistas_table = (struct TProcess_t *)malloc(n_procesos_telefono * sizeof(struct TProcess_t));
+    g_process_pistas_table = (struct TProcess_t *)malloc(n_procesos_telefono * sizeof(struct TProcess_t)); // Reservar memoria para la tabla de procesos de pistas
+
+    // Comprobar si se ha reservado memoria correctamente
     if (g_process_pistas_table == NULL)
     {
-        fprintf(stderr, "Error al reservar memoria para la tabla de procesos de pistas: %s\n", strerror(errno));
-        exit(1);
+        fprintf(stderr, "[MANAGER] Error al reservar memoria para la tabla de procesos de pistas: %s\n", strerror(errno)); // Mensaje de error
+        exit(1);                                                                                                           // Salir con error
     }
 
-    g_process_slots_table = (struct TProcess_t *)malloc(n_procesos_linea * sizeof(struct TProcess_t));
+    g_process_slots_table = (struct TProcess_t *)malloc(n_procesos_linea * sizeof(struct TProcess_t)); // Reservar memoria para la tabla de procesos de slots
+
+    // Comprobar si se ha reservado memoria correctamente
     if (g_process_slots_table == NULL)
     {
-        fprintf(stderr, "Error al reservar memoria para la tabla de procesos de slots: %s\n", strerror(errno));
-        exit(1);
+        fprintf(stderr, "[MANAGER] Error al reservar memoria para la tabla de procesos de slots: %s\n", strerror(errno)); // Mensaje de error
+        exit(1);                                                                                                          // Salir con error
     }
 }
 
 // Crear procesos
 void crear_procesos(int numPistas, int numSlots)
 {
+    // Crear procesos de slots
     for (int i = 0; i < numSlots; i++)
     {
+        // Crear un proceso de slot
         if (fork() == 0)
         {
-            lanzar_proceso_slot(i);
-            return;
+            lanzar_proceso_slot(i); // Lanzar un proceso de slot
+            return;                 // Salir del bucle
         }
     }
-    printf("[MANAGER] %d slots creados.\n", numSlots);
+    printf("[MANAGER] %d slots creados.\n", numSlots); // Mensaje de creacion de slots
 
+    // Crear procesos de pistas
     for (int i = 0; i < numPistas; i++)
     {
+        // Crear un proceso de pista
         if (fork() == 0)
         {
-            lanzar_proceso_pista(i);
-            return;
+            lanzar_proceso_pista(i); // Lanzar un proceso de pista
+            return;                  // Salir del bucle
         }
     }
-    printf("[MANAGER] %d pistas creadas.\n", numPistas);
+    printf("[MANAGER] %d pistas creadas.\n", numPistas); // Mensaje de creacion de pistas
+}
+
+// Lanzar un proceso de pista
+void lanzar_proceso_pista(const int indice_tabla)
+{
+    pid_t pid; // PID del proceso
+
+    switch (pid = fork()) // Crear un proceso hijo
+    {
+    case -1:                                                                                // Error
+        fprintf(stderr, "[MANAGER] Error al lanzar proceso pista: %s.\n", strerror(errno)); // Mensaje de error
+        terminar_procesos();                                                                // Terminar los procesos
+        liberar_recursos();                                                                 // Liberar los recursos
+        exit(EXIT_FAILURE);                                                                 // Salir con error
+    case 0:                                                                                 // Proceso hijo
+        if (execl(RUTA_PISTA, CLASE_PISTA, NULL) == -1)                                     // Ejecutar el proceso pista
+        {
+            fprintf(stderr, "[MANAGER] Error usando execl() en el proceso %s: %s.\n", CLASE_PISTA, strerror(errno)); // Mensaje de error
+            exit(EXIT_FAILURE);                                                                                      // Salir con error
+        }
+    }
+
+    g_process_pistas_table[indice_tabla].pid = pid;           // Asignar el PID del proceso a la tabla de procesos
+    g_process_pistas_table[indice_tabla].clase = CLASE_PISTA; // Asignar la clase del proceso a la tabla de procesos
+}
+
+// Lanzar un proceso de slot
+void lanzar_proceso_slot(const int indice_tabla)
+{
+    pid_t pid; // PID del proceso
+
+    switch (pid = fork()) // Crear un proceso hijo
+    {
+    case -1:                                                                               // Error
+        fprintf(stderr, "[MANAGER] Error al lanzar proceso slot: %s.\n", strerror(errno)); // Mensaje de error
+        terminar_procesos();                                                               // Terminar los procesos
+        liberar_recursos();                                                                // Liberar los recursos
+        exit(EXIT_FAILURE);                                                                // Salir con error
+    case 0:                                                                                // Proceso hijo
+        if (execl(RUTA_SLOT, CLASE_SLOT, NULL) == -1)                                      // Ejecutar el proceso slot
+        {
+            fprintf(stderr, "[MANAGER] Error usando execl() en el proceso %s: %s.\n", CLASE_SLOT, strerror(errno)); // Mensaje de error
+            exit(EXIT_FAILURE);                                                                                     // Salir con error
+        }
+    }
+    g_process_slots_table[indice_tabla].pid = pid;          // Asignar el PID del proceso a la tabla de procesos
+    g_process_slots_table[indice_tabla].clase = CLASE_SLOT; // Asignar la clase del proceso a la tabla de procesos
+}
+
+// Esperar a que terminen los procesos
+void esperar_procesos()
+{
+    int i;                            // Contador
+    int nProcesos = g_slotsProcesses; // Numero de procesos
+    pid_t pid;                        // PID del proceso
+
+    // Esperar a que terminen los procesos
+    while (nProcesos > 0)
+    {
+        pid = wait(NULL); // Esperar a que termine un proceso
+        nProcesos--;      // Decrementar el numero de procesos
+
+        // Buscar el proceso en la tabla de procesos
+        for (i = 0; i < g_slotsProcesses; i++)
+        {
+            // Si el PID del proceso es igual al PID del proceso en la tabla de procesos
+            if (pid == g_slotsProcesses[i].pid)
+            {
+                printf("[MANAGER] Proceso %s terminado [%d]...\n", g_process_slots_table[i].clase, g_process_slots_table[i].pid); // Mensaje de terminacion
+                g_process_slots_table[i].pid = 0;                                                                                 // Limpiar el PID del proceso en la tabla de procesos
+                break;                                                                                                            // Salir del bucle
+            }
+        }
+    }
 }
