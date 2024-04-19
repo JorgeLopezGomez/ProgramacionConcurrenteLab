@@ -121,67 +121,45 @@ void manejador_senhal(int sign)
 // Iniciar tabla de procesos
 void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea)
 {
-    g_process_pistas_table = (struct TProcess_t *)malloc(n_procesos_telefono * sizeof(struct TProcess_t)); // Reservar memoria para la tabla de procesos de pistas
+    g_pistasProcesses = n_procesos_telefono; // Numero de procesos de pista
+    g_slotsProcesses = n_procesos_linea;     // Numero de procesos de slot
 
-    // Comprobar si se ha reservado memoria correctamente
-    if (g_process_pistas_table == NULL)
+    // Inicializar la tabla de procesos de pista
+    g_process_pistas_table = malloc(g_pistasProcesses * sizeof(struct TProcess_t));
+    for (int i = 0; i < g_pistasProcesses; i++) // Inicializar la tabla de procesos de pista
     {
-        fprintf(stderr, "[MANAGER] Error al reservar memoria para la tabla de procesos de pistas: %s\n", strerror(errno)); // Mensaje de error
-        liberar_recursos();                                                                                                // Liberar los recursos
-        exit(EXIT_FAILURE);                                                                                                // Salir con error
-    }
-    else
-    {
-        for (int i = 0; i < n_procesos_telefono; i++)
-        {
-            g_process_pistas_table[i].pid = 0; // Inicializar el PID del proceso en la tabla de procesos
-        }
+        g_process_pistas_table[i].pid = 0; // Inicializar el PID del proceso
     }
 
-    g_process_slots_table = (struct TProcess_t *)malloc(n_procesos_linea * sizeof(struct TProcess_t)); // Reservar memoria para la tabla de procesos de slots
-
-    // Comprobar si se ha reservado memoria correctamente
-    if (g_process_slots_table == NULL)
+    // Inicializar la tabla de procesos de slot
+    g_process_slots_table = malloc(g_slotsProcesses * sizeof(struct TProcess_t));
+    for (int i = 0; i < g_slotsProcesses; i++) // Inicializar la tabla de procesos de slot
     {
-        fprintf(stderr, "[MANAGER] Error al reservar memoria para la tabla de procesos de slots: %s\n", strerror(errno)); // Mensaje de error
-        liberar_recursos();                                                                                               // Liberar los recursos
-        exit(EXIT_FAILURE);                                                                                               // Salir con error
-    }
-    else
-    {
-        for (int i = 0; i < n_procesos_linea; i++)
-        {
-            g_process_slots_table[i].pid = 0; // Inicializar el PID del proceso en la tabla de procesos
-        }
+        g_process_slots_table[i].pid = 0; // Inicializar el PID del proceso
     }
 }
 
 // Crear procesos
 void crear_procesos(int numPistas, int numSlots)
 {
-    // Crear procesos de slots
-    for (int i = 0; i < numSlots; i++)
-    {
-        // Crear un proceso de slot
-        if (fork() == 0)
-        {
-            lanzar_proceso_slot(i); // Lanzar un proceso de slot
-            return;                 // Salir del bucle
-        }
-    }
-    printf("[MANAGER] %d slots creados.\n", numSlots); // Mensaje de creacion de slots
+    g_pistasProcesses = numPistas;
+    g_slotsProcesses = numSlots;
 
     // Crear procesos de pistas
-    for (int i = 0; i < numPistas; i++)
+    for (int i = 0; i < g_pistasProcesses; i++)
     {
-        // Crear un proceso de pista
-        if (fork() == 0)
-        {
-            lanzar_proceso_pista(i); // Lanzar un proceso de pista
-            return;                  // Salir del bucle
-        }
+        lanzar_proceso_pista(i); // Lanzar un proceso de pista
     }
-    printf("[MANAGER] %d pistas creadas.\n", numPistas); // Mensaje de creacion de pistas
+    printf("[MANAGER] %d pistas creadas.\n", g_pistasProcesses); // Mensaje de creacion de procesos de pistas
+
+    // Crear procesos de slots
+    for (int i = 0; i < g_slotsProcesses; i++)
+    {
+        lanzar_proceso_slot(i); // Lanzar un proceso de slot
+    }
+    printf("[MANAGER] %d slots creados.\n", g_slotsProcesses); // Mensaje de creacion de procesos de slots
+
+    sleep(1); // Esperar un segundo
 }
 
 // Lanzar un proceso de pista
