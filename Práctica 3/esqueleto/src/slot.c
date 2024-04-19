@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     // Inicia Random
     srand(pid);
 
-    // Verifica los parámetros
+    // Verifica los parametros
     if (argc != 2)
     {
         fprintf(stderr, "[SLOT] Error. Usa: ./exec/manager.\n");
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     // Bucle principal
     while (1)
     {
-        // Recibe notificación de pista libre
+        // Recibe notificacion de pista libre
         printf("Slot [%d] recibe notificación de pista libre...\n", pid);
         printf("Slot [%d] esperando avión...\n", pid);
 
