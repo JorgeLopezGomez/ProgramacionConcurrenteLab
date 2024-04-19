@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     // Verifica los parámetros
     if (argc != 2)
     {
-        fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
+        fprintf(stderr, "[SLOT] Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
         exit(EXIT_FAILURE);
     }
     sprintf(buzonSlot, "%s", argv[1]);
