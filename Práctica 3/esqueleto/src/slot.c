@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     // Verifica los parametros
     if (argc != 2)
     {
-        fprintf(stderr, "[SLOT] Error. Usa: ./exec/manager.\n");
+        fprintf(stderr, "[SLOT] [%d] Error en los argumentos: %s <buzon_slot>\n", pid, argv[0]);
         exit(EXIT_FAILURE);
     }
     sprintf(buzonSlot, "%s", argv[1]);
