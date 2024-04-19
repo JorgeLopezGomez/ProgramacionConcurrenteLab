@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     // Lanzamos los procesos
     crear_procesos(NUMPISTAS, NUMSLOTS);
 
-    // Esperamos a que finalicen los slots (No acabará nunca)
+    // Esperamos a que finalicen los slots (No acabara nunca)
     esperar_procesos();
 
     // Matamos las pistas y cualquier otro proceso restante
@@ -63,38 +63,42 @@ int main(int argc, char *argv[])
 // Crear buzones
 void crear_buzones()
 {
-    mqd_t mq;
-    struct mq_attr attr;
-    char buzon_slot[20];
+    mqd_t mq;            // Cola de mensajes
+    struct mq_attr attr; // Atributos de la cola de mensajes
+    char buzon_slot[20]; // Buzon de slot
 
-    // Atributos del buzón
-    attr.mq_flags = 0;
-    attr.mq_maxmsg = 10;
-    attr.mq_msgsize = TAMANO_MENSAJES;
-    attr.mq_curmsgs = 0;
+    // Atributos del buzon
+    attr.mq_flags = 0;                 // Flags
+    attr.mq_maxmsg = 10;               // Numero maximo de mensajes
+    attr.mq_msgsize = TAMANO_MENSAJES; // Tamanho maximo de los mensajes
+    attr.mq_curmsgs = 0;               // Mensajes actuales
 
-    // Crear buzón para aterrizajes
+    // Crear buzon para aterrizajes
     mq = mq_open(BUZON_ATERRIZAJES, O_CREAT | O_RDWR, 0644, &attr);
+
+    // Si hay un error al abrir el buzon
     if (mq == (mqd_t)-1)
     {
-        fprintf(stderr, "[MANAGER] Error al abrir el buzón BUZON_ATERRIZAJES. Detalles: %s\n", strerror(errno));
-        liberar_recursos();
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "[MANAGER] Error al abrir el buzón BUZON_ATERRIZAJES. Detalles: %s\n", strerror(errno)); // Mensaje de error
+        liberar_recursos();                                                                                      // Liberar los recursos
+        exit(EXIT_FAILURE);                                                                                      // Salir con error
     }
-    mq_close(mq);
+    mq_close(mq); // Cerrar el buzon
 
-    // Crear un buzón para cada slot
+    // Crear un buzon para cada slot
     for (int i = 0; i < NUMSLOTS; i++)
     {
-        sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i);
-        mq = mq_open(buzon_slot, O_CREAT | O_RDWR, 0644, &attr);
+        sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i);             // Formatear el nombre del buzon
+        mq = mq_open(buzon_slot, O_CREAT | O_RDWR, 0644, &attr); // Crear el buzon
+
+        // Si hay un error al abrir el buzon
         if (mq == (mqd_t)-1)
         {
-            fprintf(stderr, "[MANAGER] Error al abrir el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno));
-            liberar_recursos();
-            exit(EXIT_FAILURE);
+            fprintf(stderr, "[MANAGER] Error al abrir el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno)); // Mensaje de error
+            liberar_recursos();                                                                                   // Liberar los recursos
+            exit(EXIT_FAILURE);                                                                                   // Salir con error
         }
-        mq_close(mq);
+        mq_close(mq); // Cerrar el buzon
     }
 }
 
@@ -255,7 +259,7 @@ void terminar_procesos_especificos(struct TProcess_t *process_table, int process
         if (process_table[i].pid != 0) // Si el PID del proceso no es 0
         {
             printf("[MANAGER] Terminando proceso %s [%d]...\n", process_table[i].clase, process_table[i].pid); // Mensaje de terminacion
-            if (kill(process_table[i].pid, SIGINT) == -1)                                                      // Enviar la señal SIGINT al proceso
+            if (kill(process_table[i].pid, SIGINT) == -1)                                                      // Enviar la senhal SIGINT al proceso
             {
                 fprintf(stderr, "[MANAGER] Error al usar kill() en proceso %d: %s.\n", process_table[i].pid, strerror(errno)); // Mensaje de error
                 exit(EXIT_FAILURE);                                                                                            // Salir con error
@@ -281,9 +285,9 @@ void liberar_recursos()
     for (int i = 0; i < NUMSLOTS; i++)
     {
         char buzon_slot[20];                         // Buzon de slot
-        sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i); // Formatear el nombre del buzón
+        sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i); // Formatear el nombre del buzon
 
-        // Cerrar el buzón de slot si no se ha cerrado
+        // Cerrar el buzon de slot si no se ha cerrado
         if (mq_unlink(buzon_slot) == -1)
         {
             fprintf(stderr, "[MANAGER] Error al eliminar el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno)); // Mensaje de error
