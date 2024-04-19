@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
     while (1)
     {
         printf("Pista [%d] en espera...\n", pid);
-
+        sleep(rand() % 11 + 10);
+        
         ssize_t bytesRead = mq_receive(qHandlerPista, buffer, TAMANO_MENSAJES, NULL);
         if (bytesRead == -1)
         {
@@ -57,7 +58,6 @@ int main(int argc, char *argv[])
         }
 
         printf("Pista [%d] con avión en aproximación desde Slot: %s\n", pid, buffer);
-        sleep(1);
         printf("Pista [%d] ha liberado el Slot. %s\n", pid, buffer);
         printf("Pista [%d] en espera...\n", pid);
     }

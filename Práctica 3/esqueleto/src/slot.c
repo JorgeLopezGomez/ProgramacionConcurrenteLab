@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
         // Recibe notificacion de pista libre
         printf("Slot [%d] recibe notificación de pista libre...\n", pid);
         printf("Slot [%d] esperando avión...\n", pid);
+        sleep(rand() % 30 + 1);
 
         ssize_t bytesRead = mq_receive(qHandlerSlot, buffer, TAMANO_MENSAJES, NULL);
         if (bytesRead == -1)
