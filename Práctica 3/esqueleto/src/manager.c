@@ -128,33 +128,26 @@ void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea)
     g_pistasProcesses = n_procesos_telefono; // Numero de procesos de pista
     g_slotsProcesses = n_procesos_linea;     // Numero de procesos de slot
 
-    // Inicializar la tabla de procesos de pista
-    g_process_pistas_table = malloc(g_pistasProcesses * sizeof(struct TProcess_t));
-    for (int i = 0; i < g_pistasProcesses; i++) // Inicializar la tabla de procesos de pista
-    {
-        g_process_pistas_table[i].pid = 0; // Inicializar el PID del proceso
-    }
-
     // Inicializar la tabla de procesos de slot
     g_process_slots_table = malloc(g_slotsProcesses * sizeof(struct TProcess_t));
     for (int i = 0; i < g_slotsProcesses; i++) // Inicializar la tabla de procesos de slot
     {
         g_process_slots_table[i].pid = 0; // Inicializar el PID del proceso
     }
+
+    // Inicializar la tabla de procesos de pista
+    g_process_pistas_table = malloc(g_pistasProcesses * sizeof(struct TProcess_t));
+    for (int i = 0; i < g_pistasProcesses; i++) // Inicializar la tabla de procesos de pista
+    {
+        g_process_pistas_table[i].pid = 0; // Inicializar el PID del proceso
+    }
 }
 
 // Crear procesos
 void crear_procesos(int numPistas, int numSlots)
 {
-    g_pistasProcesses = numPistas;
     g_slotsProcesses = numSlots;
-
-    // Crear procesos de pistas
-    for (int i = 0; i < g_pistasProcesses; i++)
-    {
-        lanzar_proceso_pista(i); // Lanzar un proceso de pista
-    }
-    printf("[MANAGER] %d pistas creadas.\n", g_pistasProcesses); // Mensaje de creacion de procesos de pistas
+    g_pistasProcesses = numPistas;
 
     // Crear procesos de slots
     for (int i = 0; i < g_slotsProcesses; i++)
@@ -162,6 +155,13 @@ void crear_procesos(int numPistas, int numSlots)
         lanzar_proceso_slot(i); // Lanzar un proceso de slot
     }
     printf("[MANAGER] %d slots creados.\n", g_slotsProcesses); // Mensaje de creacion de procesos de slots
+
+    // Crear procesos de pistas
+    for (int i = 0; i < g_pistasProcesses; i++)
+    {
+        lanzar_proceso_pista(i); // Lanzar un proceso de pista
+    }
+    printf("[MANAGER] %d pistas creadas.\n", g_pistasProcesses); // Mensaje de creacion de procesos de pistas
 
     sleep(1); // Esperar un segundo
 }
@@ -216,25 +216,28 @@ void lanzar_proceso_slot(const int indice_tabla)
 // Esperar a que terminen los procesos
 void esperar_procesos()
 {
-    int i;                            // Contador
-    int nProcesos = g_slotsProcesses; // Numero de procesos
-    pid_t pid;                        // PID del proceso
-
-    // Esperar a que terminen los procesos
-    while (nProcesos > 0)
+    while (1) // Bucle infinito
     {
-        pid = wait(NULL); // Esperar a que termine un proceso
-        nProcesos--;      // Decrementar el numero de procesos
+        int i;                            // Contador
+        int nProcesos = g_slotsProcesses; // Numero de procesos
+        pid_t pid;                        // PID del proceso
 
-        // Buscar el proceso en la tabla de procesos
-        for (i = 0; i < g_slotsProcesses; i++)
+        // Esperar a que terminen los procesos
+        while (nProcesos > 0)
         {
-            // Si el PID del proceso es igual al PID del proceso en la tabla de procesos
-            if (pid == g_process_slots_table[i].pid)
+            pid = wait(NULL); // Esperar a que termine un proceso
+            nProcesos--;      // Decrementar el numero de procesos
+
+            // Buscar el proceso en la tabla de procesos
+            for (i = 0; i < g_slotsProcesses; i++)
             {
-                printf("[MANAGER] Proceso %s terminado [%d]...\n", g_process_slots_table[i].clase, g_process_slots_table[i].pid); // Mensaje de terminacion
-                g_process_slots_table[i].pid = 0;                                                                                 // Limpiar el PID del proceso en la tabla de procesos
-                break;                                                                                                            // Salir del bucle
+                // Si el PID del proceso es igual al PID del proceso en la tabla de procesos
+                if (pid == g_process_slots_table[i].pid)
+                {
+                    printf("[MANAGER] Proceso %s terminado [%d]...\n", g_process_slots_table[i].clase, g_process_slots_table[i].pid); // Mensaje de terminacion
+                    g_process_slots_table[i].pid = 0;                                                                                 // Limpiar el PID del proceso en la tabla de procesos
+                    break;                                                                                                            // Salir del bucle
+                }
             }
         }
     }
