@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     // Verifica los parametros
     if (argc != 2)
     {
-        fprintf(stderr, "[SLOT] [%d] Error en los argumentos: %s <buzon_slot>\n", pid, argv[0]);
+        fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
         exit(EXIT_FAILURE);
     }
     sprintf(buzonSlot, "%s", argv[1]);
