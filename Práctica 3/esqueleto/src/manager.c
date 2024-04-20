@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     esperar_procesos();
 
     // Matamos las pistas y cualquier otro proceso restante
-    terminar_procesos();
+    // terminar_procesos();
 
     // Finalizamos Manager
     printf("\n[MANAGER] Terminacion del programa (todos los procesos terminados).\n");
@@ -68,8 +68,7 @@ void crear_buzones()
     char buzon_slot[20]; // Buzon de slot
 
     // Atributos del buzon
-    attr.mq_flags = 0;                 // Flags
-    attr.mq_maxmsg = 10;               // Numero maximo de mensajes
+    attr.mq_maxmsg = NUMSLOTS;               // Numero maximo de mensajes
     attr.mq_msgsize = TAMANO_MENSAJES; // Tamanho maximo de los mensajes
     attr.mq_curmsgs = 0;               // Mensajes actuales
 
@@ -98,7 +97,7 @@ void crear_buzones()
             liberar_recursos();                                                                                   // Liberar los recursos
             exit(EXIT_FAILURE);                                                                                   // Salir con error
         }
-        mq_close(mq); // Cerrar el buzon
+        // mq_close(mq); // Cerrar el buzon
     }
 }
 

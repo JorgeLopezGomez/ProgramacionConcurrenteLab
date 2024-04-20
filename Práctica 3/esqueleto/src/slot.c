@@ -32,11 +32,11 @@ int main(int argc, char *argv[])
     // TODO
     // Abre la cola de mensajes para slot
     qHandlerSlot = mq_open(buzonSlot, O_RDWR);
-    if (qHandlerSlot == (mqd_t)-1)
-    {
-        fprintf(stderr, "Slot [%d] Error al abrir la cola de mensajes: %s\n", pid, strerror(errno));
-        exit(EXIT_FAILURE);
-    }
+    // if (qHandlerSlot == (mqd_t)-1)
+    // {
+    //     fprintf(stderr, "Slot [%d] Error al abrir la cola de mensajes: %s\n", pid, strerror(errno));
+    //     exit(EXIT_FAILURE);
+    // }
 
     // Abre la cola de mensajes para aterrizajes
     qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR);
@@ -53,16 +53,19 @@ int main(int argc, char *argv[])
         printf("Slot [%d] esperando avión...\n", pid);
         sleep(rand() % 30 + 1);
         printf("Slot [%d] recibe notificación de pista libre...\n", pid);
+        mq_send(qHandlerAterrizajes, buzonSlot, sizeof(buzonSlot), 0);
 
-        ssize_t bytesRead = mq_receive(qHandlerSlot, buffer, TAMANO_MENSAJES, NULL);
-        if (bytesRead == -1)
+        printf("Slot [%d] esperando finalización de avión...\n", pid);
+
+        mq_receive(qHandlerSlot, buffer, TAMANO_MENSAJES, NULL);
+        if (qHandlerSlot == (mqd_t)-1)
         {
             fprintf(stderr, "Slot [%d] Error al recibir el mensaje: %s\n", pid, strerror(errno));
             exit(EXIT_FAILURE);
         }
 
         // Asegura que el buffer es una cadena de caracteres terminada en NULL
-        buffer[bytesRead] = '\0';
+        // buffer[bytesRead] = '\0';
 
         printf("Slot [%d] recibido avión (%s)...\n", pid, buffer);
     }
