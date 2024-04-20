@@ -175,7 +175,7 @@ void lanzar_proceso_pista(const int indice_tabla)
     {
     case -1:                                                                                // Error
         fprintf(stderr, "[MANAGER] Error al lanzar proceso pista: %s.\n", strerror(errno)); // Mensaje de error
-        terminar_procesos();                                                                // Terminar los procesos
+        // terminar_procesos();                                                                // Terminar los procesos
         liberar_recursos();                                                                 // Liberar los recursos
         exit(EXIT_FAILURE);                                                                 // Salir con error
     case 0:                                                                                 // Proceso hijo
@@ -199,7 +199,7 @@ void lanzar_proceso_slot(const int indice_tabla)
     {
     case -1:                                                                               // Error
         fprintf(stderr, "[MANAGER] Error al lanzar proceso slot: %s.\n", strerror(errno)); // Mensaje de error
-        terminar_procesos();                                                               // Terminar los procesos
+        // terminar_procesos();                                                               // Terminar los procesos
         liberar_recursos();                                                                // Liberar los recursos
         exit(EXIT_FAILURE);                                                                // Salir con error
     case 0:                                                                                // Proceso hijo
@@ -216,30 +216,11 @@ void lanzar_proceso_slot(const int indice_tabla)
 // Esperar a que terminen los procesos
 void esperar_procesos()
 {
-    while (1) // Bucle infinito
+    int i;
+
+    for (i = 0; i < NUMSLOTS; i++)
     {
-        int i;                            // Contador
-        int nProcesos = g_slotsProcesses; // Numero de procesos
-        pid_t pid;                        // PID del proceso
-
-        // Esperar a que terminen los procesos
-        while (nProcesos > 0)
-        {
-            pid = wait(NULL); // Esperar a que termine un proceso
-            nProcesos--;      // Decrementar el numero de procesos
-
-            // Buscar el proceso en la tabla de procesos
-            for (i = 0; i < g_slotsProcesses; i++)
-            {
-                // Si el PID del proceso es igual al PID del proceso en la tabla de procesos
-                if (pid == g_process_slots_table[i].pid)
-                {
-                    printf("[MANAGER] Proceso %s terminado [%d]...\n", g_process_slots_table[i].clase, g_process_slots_table[i].pid); // Mensaje de terminacion
-                    g_process_slots_table[i].pid = 0;                                                                                 // Limpiar el PID del proceso en la tabla de procesos
-                    break;                                                                                                            // Salir del bucle
-                }
-            }
-        }
+        waitpid(g_process_slots_table[i].pid, 0, 0);
     }
 }
 
@@ -296,5 +277,7 @@ void liberar_recursos()
             fprintf(stderr, "[MANAGER] Error al eliminar el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno)); // Mensaje de error
             exit(EXIT_FAILURE);                                                                                      // Salir con error
         }
+
+        mq_close(qHandlerSlots[i]); // Cerrar el buzon de slot
     }
 }

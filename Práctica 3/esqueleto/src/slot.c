@@ -22,16 +22,16 @@ int main(int argc, char *argv[])
     srand(pid);
 
     // Verifica los parametros
-    if (argc != 2)
-    {
-        fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
-        exit(EXIT_FAILURE);
-    }
+    // if (argc != 2)
+    // {
+    //     fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
+    //     exit(EXIT_FAILURE);
+    // }
     sprintf(buzonSlot, "%s", argv[1]);
 
     // TODO
     // Abre la cola de mensajes para slot
-    qHandlerSlot = mq_open(buzonSlot, O_RDONLY);
+    qHandlerSlot = mq_open(buzonSlot, O_RDWR);
     if (qHandlerSlot == (mqd_t)-1)
     {
         fprintf(stderr, "Slot [%d] Error al abrir la cola de mensajes: %s\n", pid, strerror(errno));
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     }
 
     // Abre la cola de mensajes para aterrizajes
-    qHandlerAterrizajes = mq_open(argv[2], O_RDONLY);
+    qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR);
     if (qHandlerAterrizajes == (mqd_t)-1)
     {
         fprintf(stderr, "Slot [%d] Error al abrir la cola de mensajes: %s\n", pid, strerror(errno));
@@ -50,9 +50,9 @@ int main(int argc, char *argv[])
     while (1)
     {
         // Recibe notificacion de pista libre
-        printf("Slot [%d] recibe notificación de pista libre...\n", pid);
         printf("Slot [%d] esperando avión...\n", pid);
         sleep(rand() % 30 + 1);
+        printf("Slot [%d] recibe notificación de pista libre...\n", pid);
 
         ssize_t bytesRead = mq_receive(qHandlerSlot, buffer, TAMANO_MENSAJES, NULL);
         if (bytesRead == -1)
@@ -71,5 +71,5 @@ int main(int argc, char *argv[])
     mq_close(qHandlerSlot);
     mq_close(qHandlerAterrizajes);
 
-    return 0;
+    return EXIT_SUCCESS;
 }

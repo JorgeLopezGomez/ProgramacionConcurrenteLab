@@ -17,26 +17,17 @@ int main(int argc, char *argv[])
 
     // TODO
     mqd_t qHandlerAterrizajes;
-    mqd_t qHandlerPista;
-    char buzonSlot[TAMANO_MENSAJES];
     char buffer[TAMANO_MENSAJES + 1];
 
     srand(pid);
 
     // TODO
-    if (argc != 2)
-    {
-        fprintf(stderr, "Error. Usa: ./exec/slot <cola_pista_llamante>.\n");
-        exit(EXIT_FAILURE);
-    }
-    sprintf(buzonSlot, "%s", argv[1]);
-
-    qHandlerPista = mq_open(buzonSlot, O_RDONLY);
-    if (qHandlerPista == (mqd_t)-1)
-    {
-        fprintf(stderr, "Pista [%d] Error al abrir la cola de mensajes: %s\n", pid, strerror(errno));
-        exit(EXIT_FAILURE);
-    }
+    // if (argc != 2)
+    // {
+    //     fprintf(stderr, "Error. Usa: ./exec/slot <cola_pista_llamante>.\n");
+    //     exit(EXIT_FAILURE);
+    // }
+    sprintf(buffer, "%s", argv[1]);
 
     qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDONLY);
     if (qHandlerAterrizajes == (mqd_t)-1)
@@ -50,7 +41,7 @@ int main(int argc, char *argv[])
         printf("Pista [%d] en espera...\n", pid);
         sleep(rand() % 11 + 10);
 
-        ssize_t bytesRead = mq_receive(qHandlerPista, buffer, TAMANO_MENSAJES, NULL);
+        ssize_t bytesRead = mq_receive(qHandlerAterrizajes, buffer, TAMANO_MENSAJES, NULL);
         if (bytesRead == -1)
         {
             fprintf(stderr, "Pista [%d] Error al recibir el mensaje: %s\n", pid, strerror(errno));
@@ -63,7 +54,6 @@ int main(int argc, char *argv[])
     }
 
     // cierra las colas
-    mq_close(qHandlerPista);
     mq_close(qHandlerAterrizajes);
 
     return EXIT_SUCCESS;
