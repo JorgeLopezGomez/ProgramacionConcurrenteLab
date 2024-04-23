@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     // TODO
     mqd_t qHandlerAterrizajes;
     mqd_t qHandlerSlot;
+    char buzonPista[TAMANO_MENSAJES];
     char buffer[TAMANO_MENSAJES + 1];
 
     srand(pid);
@@ -32,6 +33,8 @@ int main(int argc, char *argv[])
     {
         printf("Pista [%d] en espera...\n", pid);
         sleep(rand() % 11 + 10);
+
+        printf("Pista [%d] con avión en aproximación desde el slot: [%s]…\n", pid, buffer);
 
         if ((mq_receive(qHandlerAterrizajes, buffer, TAMANO_MENSAJES, NULL)) == -1)
         {

@@ -32,11 +32,7 @@ int main(int argc, char *argv[])
     // TODO
     // Abre la cola de mensajes para slot
     qHandlerSlot = mq_open(buzonSlot, O_RDWR);
-    qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR);if (argc != 2)
-    {
-        fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
-        exit(EXIT_FAILURE);
-    }
+    qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR);
 
     // Bucle principal
     while (1)
@@ -52,6 +48,8 @@ int main(int argc, char *argv[])
         mq_receive(qHandlerSlot, buffer, TAMANO_MENSAJES, NULL);
 
         printf("Slot [%d] recibido avión (%s)...\n", pid, buffer);
+        printf("Slot [%d] recibe notificación de pista libre...\n", pid);
+        printf("Slot [%d] esperando avión...\n", pid);
     }
 
     // Cierra las colas de mensajes

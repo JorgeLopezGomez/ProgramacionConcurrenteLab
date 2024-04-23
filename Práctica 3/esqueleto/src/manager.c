@@ -243,13 +243,6 @@ void liberar_recursos()
     free(g_process_pistas_table); // Liberar la memoria de la tabla de procesos de pistas
     free(g_process_slots_table);  // Liberar la memoria de la tabla de procesos de slots
 
-    // Cerrar los buzones
-    // if (mq_unlink(BUZON_ATERRIZAJES) == -1)
-    // {
-    //     fprintf(stderr, "[MANAGER] Error al eliminar el buzón BUZON_ATERRIZAJES. Detalles: %s\n", strerror(errno)); // Mensaje de error
-    //     exit(EXIT_FAILURE);                                                                                         // Salir con error
-    // }
-
     mq_unlink(BUZON_ATERRIZAJES);  // Cerrar el buzon de aterrizajes
     mq_close(qHandlerAterrizajes); // Cerrar el buzon de aterrizajes
 
@@ -258,13 +251,6 @@ void liberar_recursos()
     {
         char buzon_slot[20];                         // Buzon de slot
         sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i); // Formatear el nombre del buzon
-
-        // Cerrar el buzon de slot si no se ha cerrado
-        // if (mq_unlink(buzon_slot) == -1)
-        // {
-        //     fprintf(stderr, "[MANAGER] Error al eliminar el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno)); // Mensaje de error
-        //     exit(EXIT_FAILURE);                                                                                      // Salir con error
-        // }
 
         mq_close(qHandlerSlots[i]); // Cerrar el buzon de slot
         mq_unlink(buzon_slot);      // Cerrar el buzon de slot
