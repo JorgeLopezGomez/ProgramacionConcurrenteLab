@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
     // TODO
     mqd_t qHandlerAterrizajes;
     mqd_t qHandlerSlot;
-    char buzonPista[TAMANO_MENSAJES];
     char buffer[TAMANO_MENSAJES + 1];
 
     srand(pid);
