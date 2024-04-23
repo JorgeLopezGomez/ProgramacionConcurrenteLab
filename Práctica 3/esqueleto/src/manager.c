@@ -63,41 +63,25 @@ int main(int argc, char *argv[])
 // Crear buzones
 void crear_buzones()
 {
-    mqd_t mq;            // Cola de mensajes
     struct mq_attr attr; // Atributos de la cola de mensajes
-    char buzon_slot[20]; // Buzon de slot
 
-    // Atributos del buzon
-    attr.mq_maxmsg = NUMSLOTS;               // Numero maximo de mensajes
-    attr.mq_msgsize = TAMANO_MENSAJES; // Tamanho maximo de los mensajes
-    attr.mq_curmsgs = 0;               // Mensajes actuales
+    attr.mq_maxmsg = NUMSLOTS;
+    attr.mq_msgsize = TAMANO_MENSAJES;
+    mqd_t mq = mq_open(BUZON_ATERRIZAJES, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR, &attr);
 
-    // Crear buzon para aterrizajes
-    mq = mq_open(BUZON_ATERRIZAJES, O_CREAT | O_RDWR, 0644, &attr);
+    char caux[TAMANO_MENSAJES];
 
-    // Si hay un error al abrir el buzon
-    if (mq == (mqd_t)-1)
+    attr.mq_maxmsg = 1;
+    int i = 0;
+    for (i = 0; i < NUMSLOTS; i++)
     {
-        fprintf(stderr, "[MANAGER] Error al abrir el buzón BUZON_ATERRIZAJES. Detalles: %s\n", strerror(errno)); // Mensaje de error
-        liberar_recursos();                                                                                      // Liberar los recursos
-        exit(EXIT_FAILURE);                                                                                      // Salir con error
-    }
-    mq_close(mq); // Cerrar el buzon
-
-    // Crear un buzon para cada slot
-    for (int i = 0; i < NUMSLOTS; i++)
-    {
-        sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i);             // Formatear el nombre del buzon
-        mq = mq_open(buzon_slot, O_CREAT | O_RDWR, 0644, &attr); // Crear el buzon
-
-        // Si hay un error al abrir el buzon
-        if (mq == (mqd_t)-1)
+        sprintf(caux, "%s%d", BUZON_SLOTS, i);
+        mq = mq_open(caux, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR, &attr);
+        if (mq == -1)
         {
-            fprintf(stderr, "[MANAGER] Error al abrir el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno)); // Mensaje de error
-            liberar_recursos();                                                                                   // Liberar los recursos
-            exit(EXIT_FAILURE);                                                                                   // Salir con error
+            perror("mq_open");
+            exit(1);
         }
-        // mq_close(mq); // Cerrar el buzon
     }
 }
 
@@ -145,22 +129,20 @@ void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea)
 // Crear procesos
 void crear_procesos(int numPistas, int numSlots)
 {
-    g_slotsProcesses = numSlots;
-    g_pistasProcesses = numPistas;
 
     // Crear procesos de slots
-    for (int i = 0; i < g_slotsProcesses; i++)
+    printf("[MANAGER] %d slots creados.\n", numSlots); // Mensaje de creacion de procesos de slots
+    for (int i = 0; i < numSlots; i++)
     {
         lanzar_proceso_slot(i); // Lanzar un proceso de slot
     }
-    printf("[MANAGER] %d slots creados.\n", g_slotsProcesses); // Mensaje de creacion de procesos de slots
 
     // Crear procesos de pistas
-    for (int i = 0; i < g_pistasProcesses; i++)
+    printf("[MANAGER] %d pistas creadas.\n", numPistas); // Mensaje de creacion de procesos de pistas
+    for (int i = 0; i < numPistas; i++)
     {
         lanzar_proceso_pista(i); // Lanzar un proceso de pista
     }
-    printf("[MANAGER] %d pistas creadas.\n", g_pistasProcesses); // Mensaje de creacion de procesos de pistas
 
     sleep(1); // Esperar un segundo
 }
@@ -175,10 +157,10 @@ void lanzar_proceso_pista(const int indice_tabla)
     case -1:                                                                                // Error
         fprintf(stderr, "[MANAGER] Error al lanzar proceso pista: %s.\n", strerror(errno)); // Mensaje de error
         // terminar_procesos();                                                                // Terminar los procesos
-        liberar_recursos();                                                                 // Liberar los recursos
-        exit(EXIT_FAILURE);                                                                 // Salir con error
-    case 0:                                                                                 // Proceso hijo
-        if (execl(RUTA_PISTA, CLASE_PISTA, NULL) == -1)                                     // Ejecutar el proceso pista
+        liberar_recursos();                             // Liberar los recursos
+        exit(EXIT_FAILURE);                             // Salir con error
+    case 0:                                             // Proceso hijo
+        if (execl(RUTA_PISTA, CLASE_PISTA, NULL) == -1) // Ejecutar el proceso pista
         {
             fprintf(stderr, "[MANAGER] Error usando execl() en el proceso %s: %s.\n", CLASE_PISTA, strerror(errno)); // Mensaje de error
             exit(EXIT_FAILURE);                                                                                      // Salir con error
@@ -187,6 +169,7 @@ void lanzar_proceso_pista(const int indice_tabla)
 
     g_process_pistas_table[indice_tabla].pid = pid;           // Asignar el PID del proceso a la tabla de procesos
     g_process_pistas_table[indice_tabla].clase = CLASE_PISTA; // Asignar la clase del proceso a la tabla de procesos
+    g_pistasProcesses++;                                      // Incrementar el numero de procesos de pistas
 }
 
 // Lanzar un proceso de slot
@@ -199,10 +182,10 @@ void lanzar_proceso_slot(const int indice_tabla)
     case -1:                                                                               // Error
         fprintf(stderr, "[MANAGER] Error al lanzar proceso slot: %s.\n", strerror(errno)); // Mensaje de error
         // terminar_procesos();                                                               // Terminar los procesos
-        liberar_recursos();                                                                // Liberar los recursos
-        exit(EXIT_FAILURE);                                                                // Salir con error
-    case 0:                                                                                // Proceso hijo
-        if (execl(RUTA_SLOT, CLASE_SLOT, NULL) == -1)                                      // Ejecutar el proceso slot
+        liberar_recursos();                           // Liberar los recursos
+        exit(EXIT_FAILURE);                           // Salir con error
+    case 0:                                           // Proceso hijo
+        if (execl(RUTA_SLOT, CLASE_SLOT, NULL) == -1) // Ejecutar el proceso slot
         {
             fprintf(stderr, "[MANAGER] Error usando execl() en el proceso %s: %s.\n", CLASE_SLOT, strerror(errno)); // Mensaje de error
             exit(EXIT_FAILURE);                                                                                     // Salir con error
@@ -210,6 +193,7 @@ void lanzar_proceso_slot(const int indice_tabla)
     }
     g_process_slots_table[indice_tabla].pid = pid;          // Asignar el PID del proceso a la tabla de procesos
     g_process_slots_table[indice_tabla].clase = CLASE_SLOT; // Asignar la clase del proceso a la tabla de procesos
+    g_slotsProcesses++;                                     // Incrementar el numero de procesos de slots
 }
 
 // Esperar a que terminen los procesos
@@ -258,11 +242,14 @@ void liberar_recursos()
     free(g_process_slots_table);  // Liberar la memoria de la tabla de procesos de slots
 
     // Cerrar los buzones
-    if (mq_unlink(BUZON_ATERRIZAJES) == -1)
-    {
-        fprintf(stderr, "[MANAGER] Error al eliminar el buzón BUZON_ATERRIZAJES. Detalles: %s\n", strerror(errno)); // Mensaje de error
-        exit(EXIT_FAILURE);                                                                                         // Salir con error
-    }
+    // if (mq_unlink(BUZON_ATERRIZAJES) == -1)
+    // {
+    //     fprintf(stderr, "[MANAGER] Error al eliminar el buzón BUZON_ATERRIZAJES. Detalles: %s\n", strerror(errno)); // Mensaje de error
+    //     exit(EXIT_FAILURE);                                                                                         // Salir con error
+    // }
+
+    mq_unlink(BUZON_ATERRIZAJES);  // Cerrar el buzon de aterrizajes
+    mq_close(qHandlerAterrizajes); // Cerrar el buzon de aterrizajes
 
     // Cerrar los buzones de slots
     for (int i = 0; i < NUMSLOTS; i++)
@@ -271,12 +258,13 @@ void liberar_recursos()
         sprintf(buzon_slot, "%s%d", BUZON_SLOTS, i); // Formatear el nombre del buzon
 
         // Cerrar el buzon de slot si no se ha cerrado
-        if (mq_unlink(buzon_slot) == -1)
-        {
-            fprintf(stderr, "[MANAGER] Error al eliminar el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno)); // Mensaje de error
-            exit(EXIT_FAILURE);                                                                                      // Salir con error
-        }
+        // if (mq_unlink(buzon_slot) == -1)
+        // {
+        //     fprintf(stderr, "[MANAGER] Error al eliminar el buzón %s. Detalles: %s\n", buzon_slot, strerror(errno)); // Mensaje de error
+        //     exit(EXIT_FAILURE);                                                                                      // Salir con error
+        // }
 
         mq_close(qHandlerSlots[i]); // Cerrar el buzon de slot
+        mq_unlink(buzon_slot);      // Cerrar el buzon de slot
     }
 }

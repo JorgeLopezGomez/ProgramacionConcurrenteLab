@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -17,20 +16,13 @@ int main(int argc, char *argv[])
 
     // TODO
     mqd_t qHandlerAterrizajes;
+    mqd_t qHandlerSlot;
     char buffer[TAMANO_MENSAJES + 1];
 
     srand(pid);
 
     // TODO
-    // if (argc != 2)
-    // {
-    //     fprintf(stderr, "Error. Usa: ./exec/slot <cola_pista_llamante>.\n");
-    //     exit(EXIT_FAILURE);
-    // }
-    sprintf(buffer, "%s", argv[1]);
-
-    qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDONLY);
-    if (qHandlerAterrizajes == (mqd_t)-1)
+    if ((qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR)) == -1)
     {
         fprintf(stderr, "Pista [%d] Error al abrir la cola de mensajes: %s\n", pid, strerror(errno));
         exit(EXIT_FAILURE);
@@ -41,8 +33,7 @@ int main(int argc, char *argv[])
         printf("Pista [%d] en espera...\n", pid);
         sleep(rand() % 11 + 10);
 
-        ssize_t bytesRead = mq_receive(qHandlerAterrizajes, buffer, TAMANO_MENSAJES, NULL);
-        if (bytesRead == -1)
+        if ((mq_receive(qHandlerAterrizajes, buffer, TAMANO_MENSAJES, NULL)) == -1)
         {
             fprintf(stderr, "Pista [%d] Error al recibir el mensaje: %s\n", pid, strerror(errno));
             exit(EXIT_FAILURE);
@@ -51,10 +42,14 @@ int main(int argc, char *argv[])
         printf("Pista [%d] con avión en aproximación desde Slot: %s\n", pid, buffer);
         printf("Pista [%d] ha liberado el Slot. %s\n", pid, buffer);
         printf("Pista [%d] en espera...\n", pid);
-    }
 
-    // cierra las colas
-    mq_close(qHandlerAterrizajes);
+        qHandlerSlot = mq_open(buffer, O_RDWR);
+
+        mq_send(qHandlerSlot, buffer, sizeof(buffer), 0);
+
+        // cierra las colas
+        mq_close(qHandlerAterrizajes);
+    }
 
     return EXIT_SUCCESS;
 }
