@@ -175,17 +175,19 @@ void lanzar_proceso_pista(const int indice_tabla)
 // Lanzar un proceso de slot
 void lanzar_proceso_slot(const int indice_tabla)
 {
-    pid_t pid; // PID del proceso
+    pid_t pid;                                              // PID del proceso
+    char buzon_slot[TAMANO_MENSAJES];                       // Buzon de slot
+    sprintf(buzon_slot, "%s%d", BUZON_SLOTS, indice_tabla); // Formatear el nombre del buzon
 
     switch (pid = fork()) // Crear un proceso hijo
     {
     case -1:                                                                               // Error
         fprintf(stderr, "[MANAGER] Error al lanzar proceso slot: %s.\n", strerror(errno)); // Mensaje de error
         // terminar_procesos();                                                               // Terminar los procesos
-        liberar_recursos();                           // Liberar los recursos
-        exit(EXIT_FAILURE);                           // Salir con error
-    case 0:                                           // Proceso hijo
-        if (execl(RUTA_SLOT, CLASE_SLOT, NULL) == -1) // Ejecutar el proceso slot
+        liberar_recursos();                                       // Liberar los recursos
+        exit(EXIT_FAILURE);                                       // Salir con error
+    case 0:                                                       // Proceso hijo
+        if (execl(RUTA_SLOT, CLASE_SLOT, buzon_slot, NULL) == -1) // Ejecutar el proceso slot
         {
             fprintf(stderr, "[MANAGER] Error usando execl() en el proceso %s: %s.\n", CLASE_SLOT, strerror(errno)); // Mensaje de error
             exit(EXIT_FAILURE);                                                                                     // Salir con error

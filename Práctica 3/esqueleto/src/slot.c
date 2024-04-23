@@ -22,17 +22,21 @@ int main(int argc, char *argv[])
     srand(pid);
 
     // Verifica los parametros
-    // if (argc != 2)
-    // {
-    //     fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
-    //     exit(EXIT_FAILURE);
-    // }
+    if (argc != 2)
+    {
+        fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
+        exit(EXIT_FAILURE);
+    }
     sprintf(buzonSlot, "%s", argv[1]);
 
     // TODO
     // Abre la cola de mensajes para slot
     qHandlerSlot = mq_open(buzonSlot, O_RDWR);
-    qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR);
+    qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR);if (argc != 2)
+    {
+        fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
+        exit(EXIT_FAILURE);
+    }
 
     // Bucle principal
     while (1)
