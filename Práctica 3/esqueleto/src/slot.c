@@ -40,21 +40,19 @@ int main(int argc, char *argv[])
         // Recibe notificacion de pista libre
         printf("Slot [%d] esperando avión...\n", pid);
         sleep(rand() % 30 + 1);
-        printf("Slot [%d] recibe notificación de pista libre...\n", pid);
+
+        printf("Slot [%d] recibido avión (%s)...\n", pid, buzonSlot);
+        // printf("Slot [%d] recibe notificación de pista libre...\n", pid);
         mq_send(qHandlerAterrizajes, buzonSlot, sizeof(buzonSlot), 0);
 
-        printf("Slot [%d] esperando finalización de avión...\n", pid);
+        // printf("Slot [%d] esperando finalización de avión...\n", pid);
 
-        mq_receive(qHandlerSlot, buffer, TAMANO_MENSAJES, NULL);
+        mq_receive(qHandlerSlot, buffer, sizeof(buffer), NULL);
 
-        printf("Slot [%d] recibido avión (%s)...\n", pid, buffer);
+        // printf("Slot [%d] recibido avión (%s)...\n", pid, buffer);
         printf("Slot [%d] recibe notificación de pista libre...\n", pid);
-        printf("Slot [%d] esperando avión...\n", pid);
+        // printf("Slot [%d] esperando avión...\n", pid);
     }
-
-    // Cierra las colas de mensajes
-    mq_close(qHandlerSlot);
-    mq_close(qHandlerAterrizajes);
 
     return EXIT_SUCCESS;
 }
