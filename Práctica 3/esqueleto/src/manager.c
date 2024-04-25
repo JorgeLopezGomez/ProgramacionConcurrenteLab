@@ -80,7 +80,7 @@ void crear_buzones()
         if (mq == -1)
         {
             fprintf(stderr, "[MANAGER] Error al crear el buzon %s: %s.\n", caux, strerror(errno));
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
 }
@@ -169,7 +169,6 @@ void lanzar_proceso_pista(const int indice_tabla)
 
     g_process_pistas_table[indice_tabla].pid = pid;           // Asignar el PID del proceso a la tabla de procesos
     g_process_pistas_table[indice_tabla].clase = CLASE_PISTA; // Asignar la clase del proceso a la tabla de procesos
-    // g_pistasProcesses++;                                      // Incrementar el numero de procesos de pistas
 }
 
 // Lanzar un proceso de slot
@@ -195,7 +194,6 @@ void lanzar_proceso_slot(const int indice_tabla)
     }
     g_process_slots_table[indice_tabla].pid = pid;          // Asignar el PID del proceso a la tabla de procesos
     g_process_slots_table[indice_tabla].clase = CLASE_SLOT; // Asignar la clase del proceso a la tabla de procesos
-    // g_slotsProcesses++;                                     // Incrementar el numero de procesos de slots
 }
 
 // Esperar a que terminen los procesos

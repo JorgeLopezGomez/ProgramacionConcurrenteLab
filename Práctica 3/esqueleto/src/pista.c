@@ -15,36 +15,38 @@ int main(int argc, char *argv[])
     int pid = getpid();
 
     // TODO
-    mqd_t qHandlerAterrizajes;
-    mqd_t qHandlerSlot;
-    char buzonSlot[TAMANO_MENSAJES];
-    char buffer[TAMANO_MENSAJES + 1];
+    mqd_t qHandlerAterrizajes; // Abre la cola de mensajes para aterrizajes
+    mqd_t qHandlerSlot; // Abre la cola de mensajes para slot
+    char buzonSlot[TAMANO_MENSAJES]; // TAMANO_MENSAJES = 10
+    char buffer[TAMANO_MENSAJES + 1]; // +1 para el caracter nulo
 
     srand(pid);
 
     // TODO
-    qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR); 
+    qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR); // Abre la cola de mensajes para aterrizajes
 
+    // Bucle principal
     while (1)
     {
+        // Recibe notificacion de pista libre
         printf("Pista [%d] en espera...\n", pid);
-        // sleep(rand() % 11 + 10);
 
-        // printf("Pista [%d] con avión en aproximación desde el slot: [%s]…\n", pid, buzonSlot);
-
+        // Recibe notificacion de pista libre
         mq_receive(qHandlerAterrizajes, buzonSlot, sizeof(buzonSlot), NULL);
+
+        // Muestra mensaje de avión en aproximación desde el Slot y duerme un tiempo aleatorio entre 10 y 20 segundos
         printf("Pista [%d] con avión en aproximación desde el Slot: %s\n", pid, buzonSlot);
         sleep(rand() % 10 + 10);
-
-        // printf("Pista [%d] con avión en aproximación desde Slot: %s\n", pid, buffer);
+        
+        // Muestra mensaje de avión aterrizado 
         printf("Pista [%d] ha liberado el Slot. %s\n", pid, buzonSlot);
-        // printf("Pista [%d] en espera...\n", pid);
 
+        // Envia notificacion de pista libre al Slot
         qHandlerSlot = mq_open(buzonSlot, O_RDWR);
         sprintf(buffer, "%d", pid);
         mq_send(qHandlerSlot, buffer, sizeof(buffer), 0);
 
-        // cierra las colas
+        // Cierra la cola de mensajes para aterrizajes
         mq_close(qHandlerAterrizajes);
     }
 
