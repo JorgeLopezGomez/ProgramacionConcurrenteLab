@@ -14,7 +14,7 @@
 void crear_buzones();
 void instalar_manejador_senhal();
 void manejador_senhal(int sign);
-void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea);
+void iniciar_tabla_procesos(int n_procesos_pista, int n_procesos_slot);
 void crear_procesos(int numPistas, int numSlots);
 void lanzar_proceso_pista(const int indice_tabla);
 void lanzar_proceso_slot(const int indice_tabla);
@@ -106,10 +106,10 @@ void manejador_senhal(int sign)
 }
 
 // Iniciar tabla de procesos
-void iniciar_tabla_procesos(int n_procesos_telefono, int n_procesos_linea)
+void iniciar_tabla_procesos(int n_procesos_pista, int n_procesos_slot)
 {
-    g_pistasProcesses = n_procesos_telefono; // Numero de procesos de pista
-    g_slotsProcesses = n_procesos_linea;     // Numero de procesos de slot
+    g_pistasProcesses = n_procesos_pista; // Numero de procesos de pista
+    g_slotsProcesses = n_procesos_slot;     // Numero de procesos de slot
 
     // Inicializar la tabla de procesos de slot
     g_process_slots_table = malloc(g_slotsProcesses * sizeof(struct TProcess_t));
