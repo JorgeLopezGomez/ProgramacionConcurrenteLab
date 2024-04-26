@@ -17,14 +17,12 @@ int main(int argc, char *argv[])
     // TODO
     mqd_t qHandlerAterrizajes; // Abre la cola de mensajes para aterrizajes
     mqd_t qHandlerSlot; // Abre la cola de mensajes para slot
-    // char buzonSlot[TAMANO_MENSAJES]; // TAMANO_MENSAJES = 10
     char buffer[TAMANO_MENSAJES]; // +1 para el caracter nulo
 
     srand(pid);
 
     // TODO
     qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR); // Abre la cola de mensajes para aterrizajes
-    // qHandlerSlot = mq_open(buzonSlot, O_RDWR);
 
     // Bucle principal
     while (1)
@@ -47,7 +45,7 @@ int main(int argc, char *argv[])
         mq_send(qHandlerSlot, buffer, sizeof(buffer), 0);
 
         // Cierra la cola de mensajes para aterrizajes
-        // mq_close(qHandlerAterrizajes);
+        mq_close(qHandlerSlot);
     }
 
     return EXIT_SUCCESS;

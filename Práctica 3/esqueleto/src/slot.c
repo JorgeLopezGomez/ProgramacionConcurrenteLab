@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
 
     // Define variables locales
-    int pid = getpid();
+    int pid = getpid(); 
     mqd_t qHandlerAterrizajes;
     mqd_t qHandlerSlot;
     char buzonSlot[TAMANO_MENSAJES];
