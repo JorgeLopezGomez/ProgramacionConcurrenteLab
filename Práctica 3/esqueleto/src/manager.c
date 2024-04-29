@@ -65,22 +65,26 @@ void crear_buzones()
 {
     struct mq_attr attr; // Atributos de la cola de mensajes
 
-    attr.mq_maxmsg = NUMSLOTS;
-    attr.mq_msgsize = TAMANO_MENSAJES;
-    mqd_t mq = mq_open(BUZON_ATERRIZAJES, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR, &attr);
+    attr.mq_maxmsg = NUMSLOTS;                                                           // Numero maximo de mensajes en la cola de mensajes de slot
+    attr.mq_msgsize = TAMANO_MENSAJES;                                                   // Tamano maximo de los mensajes en la cola de mensajes de slot
+    mqd_t mq = mq_open(BUZON_ATERRIZAJES, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR, &attr); // Abrir el buzon de aterrizajes
 
-    char caux[TAMANO_MENSAJES];
+    char caux[TAMANO_MENSAJES]; // Cadena auxiliar
 
-    attr.mq_maxmsg = 1;
-    int i = 0;
+    attr.mq_maxmsg = 1; // Numero maximo de mensajes en la cola de mensajes de slot
+    int i = 0;          // Inicio de la tabla de procesos
+
+    // Bucle para crear los buzones de slot
     for (i = 0; i < NUMSLOTS; i++)
     {
-        sprintf(caux, "%s%d", BUZON_SLOTS, i);
-        mq = mq_open(caux, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR, &attr);
+        sprintf(caux, "%s%d", BUZON_SLOTS, i);                            // Formatear el nombre del buzon
+        mq = mq_open(caux, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR, &attr); // Abrir el buzon de slot
+
+        // Comprobar si se ha creado el buzon
         if (mq == -1)
         {
-            fprintf(stderr, "[MANAGER] Error al crear el buzon %s: %s.\n", caux, strerror(errno));
-            exit(EXIT_FAILURE);
+            fprintf(stderr, "[MANAGER] Error al crear el buzon %s: %s.\n", caux, strerror(errno)); // Mensaje de error
+            exit(EXIT_FAILURE);                                                                    // Salir con error
         }
     }
 }
@@ -109,7 +113,7 @@ void manejador_senhal(int sign)
 void iniciar_tabla_procesos(int n_procesos_pista, int n_procesos_slot)
 {
     g_pistasProcesses = n_procesos_pista; // Numero de procesos de pista
-    g_slotsProcesses = n_procesos_slot;     // Numero de procesos de slot
+    g_slotsProcesses = n_procesos_slot;   // Numero de procesos de slot
 
     // Inicializar la tabla de procesos de slot
     g_process_slots_table = malloc(g_slotsProcesses * sizeof(struct TProcess_t));
@@ -199,11 +203,12 @@ void lanzar_proceso_slot(const int indice_tabla)
 // Esperar a que terminen los procesos
 void esperar_procesos()
 {
-    int i;
+    int i; // Inicio de la tabla de procesos
 
+    // Bucle
     for (i = 0; i < NUMSLOTS; i++)
     {
-        waitpid(g_process_slots_table[i].pid, 0, 0);
+        waitpid(g_process_slots_table[i].pid, 0, 0); // Que el proceso padre espere a que termine el proceso hijo de slot
     }
 }
 

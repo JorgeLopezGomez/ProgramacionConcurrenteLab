@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     // TODO
     mqd_t qHandlerAterrizajes; // Abre la cola de mensajes para aterrizajes
     mqd_t qHandlerSlot; // Abre la cola de mensajes para slot
-    char buffer[TAMANO_MENSAJES]; // +1 para el caracter nulo
+    char buffer[TAMANO_MENSAJES]; // buffer para el mensaje
 
     srand(pid);
 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
         printf("Pista [%d] con avión en aproximación desde el Slot: %s\n", pid, buffer);
         sleep(rand() % 10 + 10);
         
-        // Muestra mensaje de avión aterrizado 
+        // Muestra mensaje de pista ha liberado el Slot
         printf("Pista [%d] ha liberado el Slot. %s\n", pid, buffer);
 
         // Envia notificacion de pista libre al Slot
@@ -48,5 +48,5 @@ int main(int argc, char *argv[])
         mq_close(qHandlerSlot);
     }
 
-    return EXIT_SUCCESS;
+    return EXIT_SUCCESS; // Sale con éxito
 }

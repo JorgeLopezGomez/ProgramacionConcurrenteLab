@@ -12,11 +12,11 @@ int main(int argc, char *argv[])
 {
 
     // Define variables locales
-    int pid = getpid(); 
-    mqd_t qHandlerAterrizajes;
-    mqd_t qHandlerSlot;
-    char buzonSlot[TAMANO_MENSAJES];
-    char buffer[TAMANO_MENSAJES + 1];
+    int pid = getpid();               // Obtiene el PID del proceso
+    mqd_t qHandlerAterrizajes;        // Abre la cola de mensajes para aterrizajes
+    mqd_t qHandlerSlot;               // Abre la cola de mensajes para slot
+    char buzonSlot[TAMANO_MENSAJES];  // buzonSLot para el mensaje
+    char buffer[TAMANO_MENSAJES + 1]; // buffer para el mensaje
 
     // Inicia Random
     srand(pid);
@@ -24,18 +24,12 @@ int main(int argc, char *argv[])
     // Verifica los parametros
     if (argc != 2)
     {
-        fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n"); // Mensaje de error
+        exit(EXIT_FAILURE);                                                 // Sale con error
     }
-    sprintf(buzonSlot, "%s", argv[1]);
+    sprintf(buzonSlot, "%s", argv[1]); // Obtiene el buzonSlot
 
     // TODO
-    if (sscanf(argv[1], "%s", buzonSlot) != 1)
-    {
-        fprintf(stderr, "Error. Usa: ./exec/slot <cola_slot_llamante>.\n");
-        exit(EXIT_FAILURE);
-    }
-
     // Abre la cola de mensajes para slot
     qHandlerAterrizajes = mq_open(BUZON_ATERRIZAJES, O_RDWR);
     qHandlerSlot = mq_open(buzonSlot, O_RDWR);
@@ -50,12 +44,15 @@ int main(int argc, char *argv[])
         // Recibe el avión y envía notificación de pista libre
         printf("Slot [%d] recibido avión (%s)...\n", pid, buzonSlot);
 
+        // Envia
         mq_send(qHandlerAterrizajes, buzonSlot, sizeof(buzonSlot), 0);
 
+        // Recibe
         mq_receive(qHandlerSlot, buffer, sizeof(buffer), NULL);
 
+        // Muestra mensaje de recibe notificación de pista libre
         printf("Slot [%d] recibe notificación de pista libre...\n", pid);
     }
 
-    return EXIT_SUCCESS;
+    return EXIT_SUCCESS; // Sale con éxito
 }
