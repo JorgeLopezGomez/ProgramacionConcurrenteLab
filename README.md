@@ -1,3 +1,3 @@
 # ProgramacionConcurrenteLab
-Repositorio para el laboratorio de programación concurrente y tiempo real (2023-24)
+Repositorio para el laboratorio de Programación Concurrente y Tiempo Real (2023-24)
 Alumno: Jorge López Gómez
